@@ -1,0 +1,37 @@
+{
+  "source_name": "BankSim synthetic bank payments",
+  "source_url": "https://www.kaggle.com/ntnu-testimon/banksim1",
+  "source_mirror": "https://raw.githubusercontent.com/niravdedhiya/Fraud-Detection-BankSim/main/data/bs140513_032310.csv",
+  "source_sha256": "ae8a3ec9d0f5bc3bcb5f579b6c32b04c43c53e3ceb5541156a7756c6a1187daa",
+  "license": "CC BY-NC-SA 4.0",
+  "feature_names": [
+    "log1p_amount",
+    "earlier_payments_today",
+    "new_recipient"
+  ],
+  "means": [
+    3.1763649889546244,
+    0.03875604670117388,
+    0.08837022217988208
+  ],
+  "scales": [
+    0.9568459017340867,
+    0.20978918420927561,
+    0.2838325668621771
+  ],
+  "weights": [
+    2.8020945416722594,
+    0.14680757582854934,
+    0.08617728911096592
+  ],
+  "bias": -7.676713928337327,
+  "threshold": 0.5,
+  "training_rows": 472365,
+  "training_fraud": 5880,
+  "test_rows": 122278,
+  "test_fraud": 1320,
+  "test_start_day": 147,
+  "average_precision": 0.6926433879440536,
+  "precision": 0.8364083640836408,
+  "recall": 0.5151515151515151
+}

@@ -1,0 +1,2 @@
+Flask==3.1.2
+scikit-learn==1.7.2  # needed only to retrain the public-data model
