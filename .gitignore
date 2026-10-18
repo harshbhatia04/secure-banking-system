@@ -7,3 +7,5 @@ data/*.db-wal
 data/.secret_key
 data/external/
 tmp/
+.env
+.env.local

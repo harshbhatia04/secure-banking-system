@@ -87,7 +87,7 @@
 \par\medskip
 In Phase II, we have connected the database with deposit, withdrawal and transfer operations. Account locks coordinate the threads, and SQLite transactions keep the debit, credit and transfer record together. If a transfer stops after the debit, rollback restores the balances. The application also checks request keys so that submitting the same request again does not move the money twice.
 \par\medskip
-The browser interface lets customers view their accounts and carry out transactions. An administrator can review rule alerts for large transfers, rapid activity and repeated failures, plus a separate AI transfer-risk alert. The AI model was trained on the public BankSim simulated-payment dataset; its scores are not validated for real customers. The prototype also includes automated tests and separate examples of lost updates and circular waiting. Our aim is to make the connection between thread synchronization and database transactions clear through a working application.}
+The browser interface lets customers view their accounts and carry out transactions. An administrator can review rule alerts for large transfers, rapid activity and repeated failures, plus a separate AI transfer-risk alert. A local prototype was trained on public BankSim data, but its INR calibration remains in progress. An optional interim Groq API review is available when configured, with the local prototype as fallback. The application includes automated tests and examples of lost updates and circular waiting. Our aim is to make thread synchronization and database transactions clear through a working application.}
 \gap
 \sectiontitle{Updated Project Approach and Architecture (2 pts)}
 \instruction{(Describe the current approach, system design, communication protocols and libraries. Max 300 words).}
@@ -98,7 +98,7 @@ The browser interface lets customers view their accounts and carry out transacti
 \par\medskip
 For a transfer involving accounts 1 and 2, the locking code requests account 1 first, even when account 2 is sending the money. Using the same order for both directions avoids an account-lock cycle. Once the locks are held, \texttt{BEGIN IMMEDIATE} reserves the database writer before balances are read. The debit, credit and history entry are committed together. The failure test interrupts this sequence after the debit to check that rollback restores both balances. Cleanup closes the connection and releases the locks.
 \par\medskip
-\texttt{client\_sim.py} starts several workers, each using its own connection. This creates competing requests, although SQLite still processes one writer at a time. Password hashes are checked through \texttt{security.py}; the web routes also check account ownership, roles and form tokens. The command-line tool assumes trusted local use. Fraud rules examine activity through the web handlers. A separate BankSim-trained logistic-regression model scores committed transfers using amount, earlier activity and recipient history; login failures remain rule-based. The administrator reviews the alerts. Lab demonstrations use temporary data. The next page shows these connections.}
+\texttt{client\_sim.py} starts several workers, each using its own connection. This creates competing requests, although SQLite still processes one writer at a time. Password hashes are checked through \texttt{security.py}; the web routes also check account ownership, roles and form tokens. The command-line tool assumes trusted local use. Fraud rules examine activity through the web handlers. A BankSim-trained logistic-regression prototype scores committed transfers using amount, earlier activity and recipient history. When configured, an external Groq API supplies an interim review signal; the local prototype is its fallback. Login failures remain rule-based. The administrator reviews the alerts. Lab demonstrations use temporary data. The next page shows these connections.}
 
 \newpage
 \vspace*{0.2cm}
@@ -215,7 +215,7 @@ The two lower blocks use this stored activity. For example, the web transfer han
 {\fontsize{11}{13}\selectfont
 \begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.69\textwidth}|>{\RaggedRight\arraybackslash}X|}\hline
 \textbf{Task Completed} & \textbf{Team Member}\\\hline
-Implemented deposits, withdrawals and transfers as atomic operations, with input checks, commit, rollback and duplicate-request protection. Built the threaded simulator and account-locking logic. Used a fixed lock order and bounded waits, and added the lost-update and deadlock demonstrations. Trained a fraud-risk model on labelled BankSim payments and integrated explainable AI transfer alerts. & Harsh Bhatia\\\hline
+Implemented deposits, withdrawals and transfers as atomic operations, with input checks, commit, rollback and duplicate-request protection. Built the threaded simulator and account-locking logic. Used fixed lock order and bounded waits, and added lost-update and deadlock demonstrations. Trained a BankSim fraud-risk prototype and integrated an optional external Groq review, with explainable alerts and a local fallback. & Harsh Bhatia\\\hline
 Designed the SQLite schema and set up users, sample accounts, balances, transaction history, failed-attempt logs and fraud-alert storage. Added database constraints, connections and queries. Prepared the project plan, architecture notes, demonstration guide and recorded test results. & Tanisha Kapoor\\\hline
 Connected the Flask pages to the backend, with customer/admin views, transaction forms, account activity, fraud alerts and the concurrency lab. Added banking and web tests. & Prakhar Garg\\\hline
 \end{tabularx}\par}
@@ -237,7 +237,7 @@ The fraud rules also need further checking around their amount and time limits. 
 {\fontsize{11}{13}\selectfont
 \begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.69\textwidth}|>{\RaggedRight\arraybackslash}X|}\hline
 \textbf{Task Pending} & \textbf{Team Member (to complete the task)}\\\hline
-Test values near the fraud-rule limits and run larger threaded workloads. Record the inputs, timings and balance checks. & Harsh Bhatia\\\hline
+Calibrate the fraud prototype for INR transactions, test the Groq API with a new key, and run larger threaded workloads. Record inputs, timings and balance checks. & Harsh Bhatia\\\hline
 Push the database files, project notes and test results to the shared repository. Review the full browser demonstration and finish the report, presentation and demonstration video. & Tanisha Kapoor\\\hline
 Push the web interface and remaining tests to the shared repository, then review the final browser demonstration. & Prakhar Garg\\\hline
 \end{tabularx}\par}
@@ -256,9 +256,9 @@ The submission will include the source code, database schema, test cases, record
 \sectiontitle{Progress Overview (2 pts)}
 \instruction{(Summarize what is done, behind schedule or ahead of schedule. Max 200 words).}
 \vspace{0.25cm}
-\answerbox{The main Phase-II features are now connected. Banking operations use the database and account locks, the simulator can run several clients, and failed transfers can be rolled back. All 35 automated tests passed in the latest local run.
+\answerbox{The main Phase-II features are now connected. Banking operations use the database and account locks, the simulator can run several clients, and failed transfers can be rolled back. All 37 automated tests passed in the latest local run.
 \par\medskip
-We have also implemented some features planned for Phase III: login, customer and administrator roles, fraud alerts, a BankSim-trained AI transfer-risk model and the dashboard. Their implementation is ahead of the phase sequence in the proposal, but more testing is needed before calling the project finished.
+We have also implemented some features planned for Phase III: login, customer and administrator roles, fraud alerts, a BankSim-trained AI prototype, an optional Groq API review, and the dashboard. Their implementation is ahead of the phase sequence in the proposal, but more testing is needed before calling the project finished.
 \par\medskip
 The next steps are larger workload comparisons, additional fraud-rule tests and a review of the complete browser demonstration. The final presentation and video are still pending.
 \par\medskip
@@ -269,7 +269,7 @@ Phase I listed milestones without calendar deadlines. We can therefore compare p
 \sectiontitle{Codebase Information (2 pts)}
 \instruction{(Repository link, branch and important commits).}
 \vspace{0.2cm}
-\answerbox{\textbf{Repository:} \url{https://github.com/harshbhatia04/secure-banking-system}. Branch \texttt{main}. Harsh's transaction, concurrency and AI model modules were uploaded in commit \texttt{bed0cd0}. The database and web modules remain in the local working folder for separate teammate commits.
+\answerbox{\textbf{Repository:} \url{https://github.com/harshbhatia04/secure-banking-system}. Branch \texttt{main}. Harsh's transaction, concurrency and local AI prototype modules were uploaded in commit \texttt{bed0cd0}. Tanisha's database and project-note files were uploaded in commit \texttt{829d40f}. The web module awaits Prakhar's commit.
 \par\medskip
 \textbf{Code organisation:} Database setup is in \texttt{database.py} and \texttt{schema.sql}. Banking operations are in \texttt{transaction\_manager.py}. Locking and simulated clients are in \texttt{concurrency\_manager.py} and \texttt{client\_sim.py}. The web application uses \texttt{web\_app.py}, \texttt{security.py} and \texttt{fraud\_detector.py}, with its pages and assets in \texttt{templates/} and \texttt{static/}.
 \par\medskip
@@ -285,11 +285,11 @@ Banking operations and validation & Pass & Valid operations changed balances cor
 Rollback and duplicate requests & Pass & A forced failure left balances unchanged. Repeating a request moved money only once. Locks were released.\\\hline
 Concurrent operations & Pass & All 100 deposits were recorded. Competing withdrawals could not overspend. Transfers in opposite directions finished.\\\hline
 Race and circular-wait demonstrations & Pass & The unsafe example lost an update; the locked version gave the correct result. Lock timeouts ended circular waiting.\\\hline
-Web access, fraud rules and AI model & Pass & Tests covered login, roles, form tokens, high-value alerts, failed logins, AI transfer alerts and alert review.\\\hline
+Web access, fraud rules and AI review & Pass & Tests covered login, roles, form tokens, high-value alerts, AI alerts, mocked Groq responses, local fallback and alert review. A live Groq call is pending.\\\hline
 Rapid-activity boundary cases & Pending & Further tests are needed for transfers at the edges of the time window and for repeated alert scans.\\\hline
 \end{tabularx}\par}
 \par\vspace{0.15cm}
-{\fontsize{10}{12}\selectfont\noindent Verification: 15 October 2026; \texttt{python -m unittest discover -s tests -v}; 35 tests passed in temporary databases.\par
+{\fontsize{10}{12}\selectfont\noindent Verification: 18 October 2026; \texttt{python -m unittest discover -s tests -v}; 37 tests passed in temporary databases.\par
 \smallskip\noindent Earlier recorded demonstrations passed six scenarios and eight workloads, using 1, 5, 10 and 20 threads with 100 operations per workload.\par}
 \gap
 \sectiontitle{Deliverables Progress (2 pts)}
@@ -297,7 +297,7 @@ Rapid-activity boundary cases & Pending & Further tests are needed for transfers
 \vspace{0.2cm}
 \answerbox{\textbf{Completed for this phase:} The database, transaction service and threaded simulator are working. The browser interface, fraud rules, AI transfer-risk scoring and access checks are connected locally. The project also has automated tests, recorded results, design notes and a demonstration guide.
 \par\medskip
-\textbf{In progress:} Further checks of concurrent workloads and fraud rules, a review of the browser demonstration, and preparation of the final report.
+\textbf{In progress:} Fraud-model calibration, a live Groq API check with a new key, further concurrent-workload checks and preparation of the final report.
 \par\medskip
-\textbf{Pending:} Teammate commits for the database and web modules, final presentation and demonstration video.}
+\textbf{Pending:} Prakhar's web-module commit, final presentation and demonstration video.}
 \end{document}
