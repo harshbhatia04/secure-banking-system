@@ -76,7 +76,8 @@ def _review_with_groq(features, api_key):
         'max_completion_tokens': 300,
     }
     request = Request(API_URL, data=json.dumps(payload).encode('utf-8'), method='POST', headers={
-        'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'})
+        'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json',
+        'User-Agent': 'GEU-Banking-System/1.0'})
     try:
         with urlopen(request, timeout=6) as response:
             body = response.read(65537)
