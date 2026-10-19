@@ -10,3 +10,5 @@ data/external/
 tmp/
 .env
 .env.local
+.codex-finalizer/
+output/

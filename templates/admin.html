@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Risk desk{% endblock %}{% block crumb %}RISK DESK{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='risk.css') }}">{% endblock %}
+{% block content %}
+<div class="page-head"><div><span class="eyebrow">ADMIN / MONITORING</span><h1>Risk desk.</h1><p>Review rule alerts, transfer AI reviews and failed sign-in attempts.</p></div><span class="pill neutral">ADMIN ACCESS</span></div>
+
+<section class="surface risk-demo-launch"><div><span class="eyebrow">SCENARIO ANALYSIS</span><h2>Inspect system behavior</h2><p>Run payments, rule checks, rollback and duplicate protection in a fresh temporary database. See the balances, review inputs and backend trace for each scenario.</p></div><a class="button primary" href="{{ url_for('admin_demo') }}">Open demo studio <span>→</span></a></section>
+
+<div class="risk-metrics">
+  <div class="surface mini-stat"><span class="eyebrow">TOTAL ALERTS</span><strong>{{ alerts|length }}</strong><small>Most recent 100 alerts</small></div>
+  <div class="surface mini-stat"><span class="eyebrow">OPEN</span><strong>{{ alerts|selectattr('reviewed', 'equalto', 0)|list|length }}</strong><small>Awaiting review</small></div>
+  <div class="surface mini-stat"><span class="eyebrow">FAILED LOGINS</span><strong>{{ login_counts|sum(attribute='attempts') }}</strong><small>In the last five minutes</small></div>
+  <div class="surface mini-stat"><span class="eyebrow">ACCOUNTS</span><strong>{{ accounts|length }}</strong><small>Ledger accounts</small></div>
+</div>
+
+<section class="surface risk-rules lower" aria-label="Detection conditions"><div class="section-header"><div><span class="eyebrow">WHAT TRIGGERS A REVIEW</span><h2>Detection conditions</h2></div></div>
+  <div class="risk-rule-grid">
+    <div><strong>High-value transfer</strong><span>₹5,000 or more</span></div>
+    <div><strong>Rapid transfers</strong><span>5 from one account in 60 seconds</span></div>
+    <div><strong>Failed operations</strong><span>3 withdrawals or transfers in 5 minutes</span></div>
+    <div><strong>Failed sign-ins</strong><span>5 failed attempts for one username in 5 minutes</span></div>
+    <div><strong>Unauthorized account</strong><span>Any attempt to operate another user's account</span></div>
+  </div>
+  <p>Each failed sign-in is logged immediately. An alert appears only when its rule reaches the stated threshold. Intelligence review checks <b>committed transfers only</b>; it does not inspect passwords or login attempts.</p>
+</section>
+
+<section class="surface table-surface lower"><div class="section-header"><div><span class="eyebrow">EXPLAINABLE DETECTION</span><h2>Fraud alerts</h2></div><span class="count-tag">Rules + intelligence review</span></div><div class="table-scroll"><table><thead><tr><th>TIME</th><th>RULE</th><th>USER</th><th>REASON</th><th>STATUS</th><th></th></tr></thead><tbody>{% for alert in alerts %}<tr><td>{{ alert.created_at[:16].replace('T', ' ') if alert.created_at else '—' }}</td><td><strong>{{ alert.display_rule }}</strong></td><td>{{ alert.user_name or 'Unknown username' }}</td><td class="reason-cell">{{ alert.display_reason }}</td><td><span class="pill {{ 'success' if alert.reviewed else 'warning' }}">{{ 'Reviewed' if alert.reviewed else 'Open' }}</span></td><td>{% if not alert.reviewed %}<form method="post" action="{{ url_for('review_alert', alert_id=alert.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="tiny-button" type="submit">Review</button></form>{% endif %}</td></tr>{% else %}<tr><td colspan="6" class="empty">No alerts yet. A ₹5,000 transfer creates a high-value rule alert; intelligence review may add another.</td></tr>{% endfor %}</tbody></table></div></section>
+
+<section class="surface table-surface login-audit lower"><div class="section-header"><div><span class="eyebrow">AUTHENTICATION AUDIT</span><h2>Failed sign-in attempts</h2></div><span class="count-tag">Latest 20 attempts</span></div>
+  <div class="login-window"><strong>Current five-minute window</strong>{% for count in login_counts %}<span class="pill {{ 'warning' if count.attempts >= 5 else 'neutral' }}">{{ count.username }} · {{ count.attempts }}/5</span>{% else %}<span>No failed sign-ins in the last five minutes.</span>{% endfor %}</div>
+  <div class="table-scroll"><table><thead><tr><th>TIME (UTC)</th><th>USERNAME ENTERED</th></tr></thead><tbody>{% for attempt in login_failures %}<tr><td>{{ attempt.created_at[:19].replace('T', ' ') }}</td><td><strong>{{ attempt.username }}</strong></td></tr>{% else %}<tr><td colspan="2" class="empty">No failed sign-ins recorded yet.</td></tr>{% endfor %}</tbody></table></div>
+  <p class="table-footnote">Attempts with different spellings count separately. After five failures for the same username in five minutes, sign-in is temporarily blocked and one alert is created.</p>
+</section>
+
+{% if groq_enabled %}<section class="surface ai-model-card lower"><div><span class="eyebrow">EXTERNAL REVIEW SERVICE</span><h2>Intelligence review</h2><p>Committed transfers are reviewed by a configured external AI service. Only the amount, earlier transfer counts over 24 hours and 60 seconds, and whether the recipient is new are sent; customer names and account numbers stay in this app. The response can create a human-review alert, not a fraud verdict. If the service is unavailable, rule checks still run and the transfer remains committed.</p></div><div class="ai-features"><span><b>01</b> Amount</span><span><b>02</b> Earlier transfers</span><span><b>03</b> New recipient</span></div></section>{% endif %}
+
+<div class="two-column lower"><section class="surface"><div class="section-header"><div><span class="eyebrow">IDENTITIES</span><h2>Demo users</h2></div></div>{% for user in users %}<div class="person-row"><span class="user-avatar">{{ user.name[0] }}</span><span><strong>{{ user.name }}</strong><small>@{{ user.username }}</small></span><span class="pill neutral">{{ user.role|title }}</span></div>{% endfor %}</section><section class="surface"><div class="section-header"><div><span class="eyebrow">FAILED MONEY OPERATIONS</span><h2>Rejected attempts</h2></div></div>{% for item in failures %}<div class="failure-row"><span class="item-icon withdraw">×</span><span><strong>{{ item.operation|title }} · #{{ item.source_id or item.destination_id or '—' }}</strong><small>{{ item.reason }}</small></span></div>{% else %}<div class="empty">No rejected money operations.</div>{% endfor %}</section></div>
+{% endblock %}

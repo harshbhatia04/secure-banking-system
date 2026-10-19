@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="login-head"><span class="brand-logo-shell login-logo-shell"><img class="brand-logo" src="{{ url_for('static', filename='graphicera_logo.png') }}" alt="Graphic Era University logo"></span><span>GEU Banking<small>system</small></span></div>
+  <div class="login-grid">
+    <section class="login-story">
+      <div class="story-top"><span class="eyebrow light">UNIVERSITY PROJECT / 2026</span><span class="story-index">01 — 03</span></div>
+      <div><p class="story-kicker">TRANSACTIONS · THREADS · TRUST</p><h1>Every balance<br>has a story.</h1><p class="story-copy">A working banking simulation where concurrent payments, rollback and fraud signals can be inspected as they happen.</p></div>
+      <div class="story-foot"><span>01 &nbsp; Atomic transfers</span><span>02 &nbsp; Ordered locks</span><span>03 &nbsp; Explainable alerts</span></div>
+      <div class="story-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </section>
+    <section class="login-panel">
+      <div class="login-form-box"><span class="eyebrow">SECURE ACCESS</span><h2>Welcome back</h2><p>Sign in to your banking workspace.</p>
+        <form method="post" class="form-stack">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <label>Username<input name="username" autocomplete="username" placeholder="harsh or admin" required maxlength="80" autofocus></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" placeholder="Enter password" required></label>
+          <button class="button primary wide" type="submit">Sign in <span>→</span></button>
+        </form>
+        <div class="demo-login"><span class="eyebrow">DEMO ACCOUNTS</span><p><strong>Customer:</strong> harsh, prakhar or tanisha<br><strong>Administrator:</strong> admin</p><p>Password: <code>{{ demo_password }}</code></p></div>
+      </div>
+    </section>
+  </div>
+  <p class="login-disclaimer">Educational prototype. Simulated balances and transactions only.</p>
+</div>
+{% endblock %}

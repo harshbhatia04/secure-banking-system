@@ -5,6 +5,8 @@ import os
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from fraud_detector import transfer_review_context
+
 
 API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 DEFAULT_MODEL = 'openai/gpt-oss-20b'
@@ -35,16 +37,12 @@ def _transfer_features(database, transaction_id):
             (transaction_id,)).fetchone()
         if prior_alert:
             return None
-        earlier = connection.execute("""SELECT count(*) FROM transactions
-            WHERE source_id=? AND operation='transfer' AND id < ?
-              AND created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day')""",
-            (transaction['source_id'], transaction_id)).fetchone()[0]
-        known = connection.execute("""SELECT 1 FROM transactions
-            WHERE source_id=? AND destination_id=? AND operation='transfer' AND id < ? LIMIT 1""",
-            (transaction['source_id'], transaction['destination_id'], transaction_id)).fetchone()
+        context = transfer_review_context(connection, transaction)
         # No customer name, username, account number, or transaction ID leaves the app.
         return {'amount_inr': transaction['amount_paise'] / 100,
-                'earlier_transfers_24h': earlier, 'new_recipient': known is None}
+                'earlier_transfers_24h': context['earlier_24h'],
+                'earlier_transfers_60s': context['earlier_60s'],
+                'new_recipient': context['new_recipient']}
     finally:
         connection.close()
 
@@ -67,6 +65,9 @@ def _review_with_groq(features, api_key):
                 'You assist an educational banking demo. Assess whether a completed transfer merits '
                 'human review using only the supplied amount, recent frequency, and recipient history. '
                 'A review flag is not proof of fraud. Use review=true for medium or high concern. '
+                'A large amount alone is not evidence of fraud. Do not describe activity as a rapid burst '
+                'unless earlier_transfers_60s supports that claim; the 24-hour count is not a minute-level burst. '
+                'For a known recipient without rapid activity, require another concrete signal before flagging. '
                 'Give one short, factual reason; do not invent customer details or claim a calibrated probability.')},
             {'role': 'user', 'content': json.dumps(features, separators=(',', ':'))},
         ],

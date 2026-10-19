@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS fraud_alerts (
     rule TEXT NOT NULL,
     reason TEXT NOT NULL,
     reviewed INTEGER NOT NULL DEFAULT 0 CHECK(reviewed IN (0, 1)),
-    user_id INTEGER REFERENCES users(id)
+    user_id INTEGER REFERENCES users(id),
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
 CREATE TABLE IF NOT EXISTS login_attempts (
@@ -62,3 +63,22 @@ CREATE TABLE IF NOT EXISTS login_attempts (
 CREATE INDEX IF NOT EXISTS ix_login_attempts_name_time ON login_attempts(username, created_at);
 CREATE INDEX IF NOT EXISTS ix_transactions_time ON transactions(created_at);
 CREATE INDEX IF NOT EXISTS ix_failures_time ON failed_attempts(created_at);
+
+-- Actual events observed while a web transaction runs. They are buffered until
+-- the banking COMMIT and saved afterward, so tracing cannot split the payment.
+CREATE TABLE IF NOT EXISTS transaction_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_id INTEGER NOT NULL REFERENCES transactions(id),
+    sequence INTEGER NOT NULL,
+    occurred_at TEXT NOT NULL,
+    elapsed_ms REAL NOT NULL CHECK(elapsed_ms >= 0),
+    process_id INTEGER NOT NULL,
+    native_thread_id INTEGER NOT NULL,
+    component TEXT NOT NULL,
+    action TEXT NOT NULL,
+    message TEXT NOT NULL,
+    account_id INTEGER,
+    duration_ms REAL CHECK(duration_ms IS NULL OR duration_ms >= 0),
+    UNIQUE(transaction_id, sequence)
+);
+CREATE INDEX IF NOT EXISTS ix_transaction_events_transaction ON transaction_events(transaction_id, sequence);

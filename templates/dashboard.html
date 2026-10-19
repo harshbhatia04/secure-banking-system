@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+{% if current_user.role == 'admin' %}
+<div class="page-head"><div><span class="eyebrow">ADMIN WORKSPACE</span><h1>Admin overview.</h1><p>Monitor accounts, transactions, alerts and rejected operations.</p></div><a class="button primary" href="{{ url_for('admin') }}">Open risk desk <span>→</span></a></div>
+{% else %}
+<div class="page-head"><div><span class="eyebrow">YOUR WORKSPACE</span><h1>Good evening, {{ current_user.name.split()[0] }}.</h1><p>Here is what is happening across your account.</p></div><a class="button primary" href="{{ url_for('transfer') }}">↗ &nbsp; New transaction</a></div>
+{% endif %}
+<div class="metrics">
+  <section class="balance-panel"><div class="balance-top"><span>{{ 'TOTAL CUSTOMER BALANCES' if current_user.role == 'admin' else 'AVAILABLE BALANCE' }}</span><span class="balance-serial">{{ 'ALL ACCOUNTS' if current_user.role == 'admin' else 'LEDGER / %03d'|format(current_user.id) }}</span></div><strong>{{ total|money }}</strong><div class="balance-bottom"><span><span class="online-dot"></span> Local banking system</span><span>{{ accounts|length }} ACCOUNT{% if accounts|length != 1 %}S{% endif %}</span></div></section>
+  <section class="metric-card"><span class="metric-glyph teal">↔</span><div><span class="eyebrow">TRANSACTIONS</span><strong>{{ stats.transactions }}</strong><small>Committed movements</small></div></section>
+  <section class="metric-card"><span class="metric-glyph amber">◈</span><div><span class="eyebrow">OPEN ALERTS</span><strong>{{ stats.alerts }}</strong><small>Flagged activity</small></div></section>
+  <section class="metric-card"><span class="metric-glyph red">×</span><div><span class="eyebrow">REJECTED OPERATIONS</span><strong>{{ stats.failures }}</strong><small>Banking actions logged separately</small></div></section>
+</div>
+<div class="two-column">
+  <section class="surface activity-surface"><div class="section-header"><div><span class="eyebrow">LATEST ACTIVITY</span><h2>Recent transactions</h2></div><a class="text-link" href="{{ url_for('activity') }}">View activity →</a></div>
+    <div class="activity-list">{% for item in recent %}<div class="activity-item"><span class="item-icon {% if item.operation == 'deposit' %}deposit{% elif item.operation == 'withdraw' %}withdraw{% else %}transfer{% endif %}">{{ '↙' if item.operation == 'deposit' else ('↗' if item.operation == 'withdraw' else '↔') }}</span><div class="item-desc"><strong>{{ item.operation|title }} {% if item.operation == 'transfer' %}#{{ item.source_id }} → #{{ item.destination_id }}{% else %}#{{ item.source_id or item.destination_id }}{% endif %}</strong><small>{{ item.created_at[:16].replace('T', ' ') }} UTC · TXN {{ item.id }}</small></div><div class="item-amount"><strong>{{ item.amount_paise|money }}</strong><a class="text-link" href="{{ url_for('transaction_detail', transaction_id=item.id) }}">Inspect →</a></div></div>{% else %}<div class="empty">No activity yet. Make a transaction to see it here.</div>{% endfor %}</div>
+  </section>
+  <div class="right-stack"><section class="surface"><div class="section-header"><div><span class="eyebrow">ACCOUNTS</span><h2>Balances</h2></div></div>{% for account in accounts %}<div class="account-item"><span class="account-mark">{{ account.name[0] }}</span><span><strong>{{ account.name }}</strong><small>Account {{ '%04d'|format(account.id) }} · {{ account.status|title }}</small></span><b>{{ account.balance_paise|money }}</b></div>{% else %}<div class="empty">No linked accounts.</div>{% endfor %}</section>
+    <section class="surface system-note"><span class="eyebrow">HOW THIS WORKS</span><h2>Correct balances under load</h2><p>Every transfer debits and credits together. The concurrency lab demonstrates what happens when threads race, and how ordered locks prevent circular waiting.</p>{% if current_user.role == 'admin' %}<a class="text-link" href="{{ url_for('lab') }}">Open concurrency lab →</a>{% endif %}</section></div>
+</div>
+{% endblock %}

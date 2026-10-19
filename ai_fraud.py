@@ -18,6 +18,59 @@ def risk_score(amount_paise, earlier_transfers_today, new_recipient):
     return 1 / (1 + math.exp(-max(-60, min(60, z)))), raw
 
 
+def _transfer_inputs(connection, transaction):
+    """Inputs as they stood when this committed transfer was recorded."""
+    earlier = connection.execute("""SELECT count(*) FROM transactions
+        WHERE source_id=? AND operation='transfer' AND id < ?
+          AND created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', ?, '-1 day')""",
+        (transaction['source_id'], transaction['id'], transaction['created_at'])).fetchone()[0]
+    prior_recipient = connection.execute("""SELECT 1 FROM transactions
+        WHERE source_id=? AND destination_id=? AND operation='transfer' AND id < ? LIMIT 1""",
+        (transaction['source_id'], transaction['destination_id'], transaction['id'])).fetchone()
+    return earlier, prior_recipient is None
+
+
+def transfer_risk_details(database, transaction_id):
+    """Explain the local model's score for a committed transfer; never create an alert."""
+    connection = database.connect()
+    try:
+        transaction = connection.execute('SELECT * FROM transactions WHERE id=?', (transaction_id,)).fetchone()
+        if transaction is None:
+            raise ValueError('Committed transaction not found')
+        if transaction['operation'] != 'transfer':
+            return None
+        earlier, new_recipient = _transfer_inputs(connection, transaction)
+        recent_minute = connection.execute("""SELECT count(*) FROM transactions
+            WHERE source_id=? AND operation='transfer' AND id < ?
+              AND created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', ?, '-60 seconds')""",
+            (transaction['source_id'], transaction_id, transaction['created_at'])).fetchone()[0]
+        score, raw = risk_score(transaction['amount_paise'], earlier, new_recipient)
+        contributions = [weight * ((value - mean) / scale)
+                         for weight, value, mean, scale in zip(
+                             MODEL['weights'], raw, MODEL['means'], MODEL['scales'])]
+        strongest = max(range(3), key=lambda index: contributions[index])
+        if score >= RISK_THRESHOLD:
+            signal = ('the transfer amount', 'recent transfer activity', 'the new recipient')[strongest]
+            explanation = (f'This score crosses the {RISK_THRESHOLD:.0%} review threshold; '
+                           f'{signal} is the strongest upward model input for this transfer.')
+        elif earlier >= 4:
+            explanation = ('Earlier transfers raise the score, but the amount and recipient history '
+                           f'leave it below the {RISK_THRESHOLD:.0%} model threshold. '
+                           'The rapid-activity rule is checked separately.')
+        elif new_recipient:
+            explanation = ('A new recipient adds some risk, but this amount and the limited earlier '
+                           f'activity keep the score below the {RISK_THRESHOLD:.0%} review threshold.')
+        else:
+            explanation = ('This amount, earlier activity and recipient history together keep the '
+                           f'score below the {RISK_THRESHOLD:.0%} review threshold.')
+        return {'amount_paise': transaction['amount_paise'], 'earlier': earlier,
+                'recent_minute': recent_minute,
+                'new_recipient': new_recipient, 'score': score,
+                'threshold': RISK_THRESHOLD, 'explanation': explanation}
+    finally:
+        connection.close()
+
+
 def scan_ai_risk(database, transaction_id, user_id):
     """Score one committed transfer and save one review alert when warranted."""
     connection = database.connect()
@@ -34,14 +87,7 @@ def scan_ai_risk(database, transaction_id, user_id):
         if previous:
             connection.commit()
             return []
-        earlier = connection.execute("""SELECT count(*) FROM transactions
-            WHERE source_id=? AND operation='transfer' AND id < ?
-              AND created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day')""",
-            (transaction['source_id'], transaction_id)).fetchone()[0]
-        prior_recipient = connection.execute("""SELECT 1 FROM transactions
-            WHERE source_id=? AND destination_id=? AND operation='transfer' AND id < ? LIMIT 1""",
-            (transaction['source_id'], transaction['destination_id'], transaction_id)).fetchone()
-        new_recipient = prior_recipient is None
+        earlier, new_recipient = _transfer_inputs(connection, transaction)
         score, _ = risk_score(transaction['amount_paise'], earlier, new_recipient)
         if score < RISK_THRESHOLD:
             connection.commit()

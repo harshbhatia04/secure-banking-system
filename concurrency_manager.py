@@ -20,19 +20,28 @@ class AccountLocks:
             return self._locks.setdefault(account_id, threading.Lock())
 
     @contextmanager
-    def acquire(self, account_ids, timeout=5.0):
+    def acquire(self, account_ids, timeout=5.0, trace=None):
         acquired = []
         deadline = time.monotonic() + timeout
         try:
             for account_id in sorted(set(account_ids)):
                 lock = self.for_account(account_id)
+                if trace:
+                    trace('requested', account_id)
+                    if lock.locked():
+                        trace('waiting', account_id)
                 if self.observer:
                     self.observer('waiting' if lock.locked() else 'request', account_id)
+                wait_started = time.perf_counter_ns()
                 if not lock.acquire(timeout=max(0, deadline - time.monotonic())):
+                    if trace:
+                        trace('timeout', account_id)
                     if self.observer:
                         self.observer('timeout', account_id)
                     raise LockTimeout(f'Timed out waiting for account {account_id}')
                 acquired.append((account_id, lock))
+                if trace:
+                    trace('acquired', account_id, (time.perf_counter_ns() - wait_started) / 1_000_000)
                 if self.observer:
                     self.observer('acquired', account_id)
                 if self.visualization_delay:
@@ -43,6 +52,8 @@ class AccountLocks:
                 if self.observer:
                     self.observer('released', account_id)
                 lock.release()
+                if trace:
+                    trace('released', account_id)
 
 
 _registry_guard = threading.Lock()

@@ -1,0 +1,28 @@
+<section class="surface runtime-trace lower" aria-labelledby="runtimeTraceTitle">
+  <div class="trace-header">
+    <div><span class="eyebrow">OBSERVED BACKEND EVENTS</span><h2 id="runtimeTraceTitle">What actually ran for transaction #{{ transaction.id }}</h2><p>These lines are recorded by the Python service as the request executes. Times are measured from the start of the transaction handler.</p></div>
+    {% if trace_events %}<span class="trace-count">{{ trace_events|length }} saved events</span>{% endif %}
+  </div>
+  {% if trace_events %}
+  <div class="trace-metrics">
+    <div><small>OS THREAD</small><strong>#{{ trace_events[0].native_thread_id }}</strong><span>Process #{{ trace_events[0].process_id }}</span></div>
+    <div><small>LOCKS ACTUALLY ACQUIRED</small><strong>{% for account_id in acquired_lock_ids %}#{{ account_id }}{% if not loop.last %} → {% endif %}{% endfor %}</strong><span>Released after database work</span></div>
+    <div><small>LOCK CONTENTION</small><strong>{{ lock_wait_count }} wait{{ '' if lock_wait_count == 1 else 's' }}</strong><span>Observed by this worker</span></div>
+    <div><small>SQLITE WRITER WAIT</small><strong>{% if writer_wait_ms is not none %}{{ '%.3f'|format(writer_wait_ms) }} ms{% else %}—{% endif %}</strong><span>BEGIN IMMEDIATE</span></div>
+  </div>
+  <div class="trace-feed-heading"><div><span class="eyebrow">EVENT STREAM / SAVED IN SQLITE</span><h3>Thread → locks → database → fraud review</h3></div><span>Completed in {{ '%.3f'|format(trace_events[-1].elapsed_ms) }} ms</span></div>
+  <ol class="trace-feed">
+    {% for event in trace_events %}
+    <li class="trace-event trace-{{ event.component|lower }} {% if event.action in ('lock_acquired', 'begin_immediate', 'debit_written', 'credit_written', 'ledger_inserted', 'committed', 'lock_released', 'api_finished', 'local_model_finished') %}is-key{% endif %}">
+      <span class="trace-index">{{ '%02d'|format(event.sequence) }}</span>
+      <span class="trace-elapsed">+{{ '%.3f'|format(event.elapsed_ms) }} ms</span>
+      <div class="trace-message"><span class="trace-component">{{ event.component }}</span><strong>{{ event.message }}</strong>{% if event.duration_ms is not none and event.action == 'lock_acquired' %}<small>Measured lock wait: {{ '%.3f'|format(event.duration_ms) }} ms</small>{% endif %}</div>
+    </li>
+    {% endfor %}
+  </ol>
+  <div class="trace-deadlock"><strong>Deadlock check</strong><p>{% if lock_wait_count %}This worker encountered {{ lock_wait_count }} occupied lock{{ '' if lock_wait_count == 1 else 's' }} and then continued after acquiring it.{% else %}This request had no observed lock contention.{% endif %} It acquired account locks in ascending ID order, so this transaction did not form a circular wait. {% if current_user.role == 'admin' %}<a href="{{ url_for('lab') }}">Run the Concurrency Lab</a> to see an intentionally forced deadlock and the normal ordered-lock behavior.{% else %}The admin Concurrency Lab can demonstrate a deliberately forced deadlock separately.{% endif %}</p></div>
+  <p class="trace-footnote">The service buffers these observations while money is moving and saves them in <code>transaction_events</code> after the banking commit. Logging cannot leave half a transfer committed.</p>
+  {% else %}
+  <div class="trace-empty"><span>◷</span><div><h3>No runtime trace was captured for this earlier transaction</h3><p>Tracing starts with new transactions. The ledger entry above is real, but thread waits and timings cannot be recovered afterward.</p><a class="button primary" href="{{ url_for('transfer') }}">Make a demo transaction →</a></div></div>
+  {% endif %}
+</section>

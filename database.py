@@ -35,6 +35,11 @@ class Database:
             alert_columns = {row['name'] for row in connection.execute('PRAGMA table_info(fraud_alerts)')}
             if 'user_id' not in alert_columns:
                 connection.execute('ALTER TABLE fraud_alerts ADD COLUMN user_id INTEGER REFERENCES users(id)')
+            if 'created_at' not in alert_columns:
+                connection.execute('ALTER TABLE fraud_alerts ADD COLUMN created_at TEXT')
+                connection.execute('''UPDATE fraud_alerts SET created_at =
+                    (SELECT created_at FROM transactions WHERE id = fraud_alerts.transaction_id)
+                    WHERE transaction_id IS NOT NULL''')
             connection.executescript('''
                 CREATE TABLE IF NOT EXISTS login_attempts (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,6 +50,12 @@ class Database:
                 CREATE INDEX IF NOT EXISTS ix_login_attempts_name_time ON login_attempts(username, created_at);
                 CREATE INDEX IF NOT EXISTS ix_transactions_time ON transactions(created_at);
                 CREATE INDEX IF NOT EXISTS ix_failures_time ON failed_attempts(created_at);
+                CREATE TRIGGER IF NOT EXISTS set_fraud_alert_time AFTER INSERT ON fraud_alerts
+                WHEN NEW.created_at IS NULL
+                BEGIN
+                    UPDATE fraud_alerts SET created_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+                    WHERE id = NEW.id;
+                END;
             ''')
         finally:
             connection.close()

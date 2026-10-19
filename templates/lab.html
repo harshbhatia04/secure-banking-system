@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Concurrency lab{% endblock %}
+{% block crumb %}CONCURRENCY LAB{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='lab.css') }}">{% endblock %}
+{% block content %}
+<div class="page-head lab-heading">
+  <div><span class="eyebrow">OS × DBMS / LIVE DEMONSTRATION</span><h1>Concurrency lab.</h1><p>Watch threads compete for account locks, then inspect the outcome.</p></div>
+  <form method="post" action="{{ url_for('run_lab') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="button primary" id="runLab" type="submit">Run live demo <span>→</span></button></form>
+</div>
+<section class="surface live-board" aria-label="Live thread monitor">
+  <div class="section-header"><div><span class="eyebrow">REAL PYTHON THREADS / ISOLATED DATABASE</span><h2>What is happening now</h2></div><span class="lab-status" id="labStatus">READY</span></div>
+  <p class="lab-stage" id="labStage" role="status">Ready to run. Click the button above.</p>
+  <div class="lab-progress"><div id="labProgress"></div></div>
+  <div class="lab-metrics"><div><small>COMMITTED TRANSFERS</small><strong id="labCommitted">0 / 50</strong></div><div><small>THREADS WAITING</small><strong id="labWaiting">0</strong></div><div><small>LOCKS HELD</small><strong id="labHeld">0</strong></div><div><small>LOCK WAITS OBSERVED</small><strong id="labWaitCount">0</strong></div></div>
+  <div class="monitor-grid">
+    <div class="monitor-panel"><div class="monitor-label"><span>ACCOUNT LOCKS</span><small>ordered 1 → 2 → 3</small></div><div id="lockRows" class="lock-rows"></div><p class="monitor-note">A thread acquires the lower account ID first. A short delay makes lock ownership visible in this demo.</p></div>
+    <div class="monitor-panel"><div class="monitor-label"><span>WAIT-FOR GRAPH</span><small id="graphMode">live dependency edges</small></div><div id="waitGraph" class="wait-graph"><span class="empty-graph">No thread is waiting right now.</span></div><p class="monitor-note">An arrow means a real worker is waiting for an account lock held by another worker. After the run, the last observed wait remains visible.</p></div>
+  </div>
+  <div class="monitor-label event-title"><span>THREAD EVENT STREAM</span><small>most recent first</small></div><div id="labEvents" class="event-feed"><div class="empty-graph">Events appear here during the run.</div></div>
+</section>
+<div class="lab-grid lower">
+  <section class="surface lab-card"><span class="lab-number">01 / THREADS</span><h2>Race condition</h2><p>Two threads each add 100. Without a lock, one update is lost.</p><div class="compare"><div><small>EXPECTED</small><strong id="raceExpected">—</strong></div><div class="bad"><small>NO LOCK</small><strong id="raceUnsafe">—</strong></div><div class="good"><small>WITH LOCK</small><strong id="raceSafe">—</strong></div></div></section>
+  <section class="surface lab-card"><span class="lab-number">02 / FORCED EXAMPLE</span><h2>Deadlock</h2><p>Two dummy locks deliberately create circular wait. Both threads leave after a bounded timeout. Real transfers use ordered account locks.</p><div class="cycle-diagram"><span>THREAD A<br><small>holds lock A</small></span><span class="cycle-arrows">⇄<small>each waits for the other</small></span><span>THREAD B<br><small>holds lock B</small></span></div><div class="result-line" id="deadlockResult">Run the demo to verify both workers finish.</div><div class="code-lines" id="deadlockEvents"></div></section>
+  <section class="surface lab-card"><span class="lab-number">03 / DATABASE</span><h2>Concurrent transfers</h2><p>Ten threads run 50 transfers. The total balance must remain constant.</p><div class="compare"><div><small>OPERATIONS</small><strong id="sampleCount">—</strong></div><div><small>TIME</small><strong id="sampleTime">—</strong></div><div class="good"><small>LEDGER</small><strong id="sampleLedger">—</strong></div></div></section>
+</div>
+<section class="surface lab-card rollback-card lower"><span class="lab-number">04 / DATABASE TRANSACTIONS</span><h2>Rollback after debit</h2><p>The lab raises an error after the debit. The database restores both original balances and records no completed transfer.</p><div class="compare"><div class="good"><small>BALANCES</small><strong id="rollbackBalance">—</strong></div><div><small>COMMITTED</small><strong id="rollbackCommitted">—</strong></div><div class="good"><small>RESULT</small><strong id="rollbackResult">—</strong></div></div></section>
+{% if report %}
+<section class="surface table-surface lower"><div class="section-header"><div><span class="eyebrow">RECORDED BENCHMARK</span><h2>Measured workloads</h2></div><span class="pill {{ 'success' if report.passed else 'warning' }}">{{ 'ALL PASSED' if report.passed else 'CHECK RESULTS' }}</span></div><div class="table-scroll"><table><thead><tr><th>WORKLOAD</th><th>THREADS</th><th>OPERATIONS</th><th>COMPLETED</th><th>TIME</th><th>ACCOUNTING</th></tr></thead><tbody>{% for row in report.benchmarks %}<tr><td>{{ row.mode|title }}</td><td>{{ row.workers }}</td><td>{{ row.requested_operations }}</td><td>{{ row.successful }}</td><td>{{ row.elapsed_seconds }}s</td><td><span class="pill {{ 'success' if row.passed else 'warning' }}">{{ 'PASS' if row.passed else 'FAIL' }}</span></td></tr>{% endfor %}</tbody></table></div><p class="table-footnote">SQLite allows one writer at a time. More threads show contention and safety; they do not guarantee more speed.</p></section>
+{% endif %}
+{% endblock %}
+{% block extra_scripts %}<script src="{{ url_for('static', filename='lab.js') }}" defer></script>{% endblock %}

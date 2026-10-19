@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Move money{% endblock %}{% block crumb %}MOVE MONEY{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='payment_flow.css') }}">{% endblock %}
+{% block content %}
+<div class="page-head"><div><span class="eyebrow">BANKING</span><h1>Move money.</h1><p>Deposit, withdraw or transfer simulated funds.</p></div></div>
+<div class="form-layout"><section class="surface form-surface"><div class="section-header"><div><span class="eyebrow">NEW TRANSACTION</span><h2>Payment details</h2></div><span class="pill neutral">SIMULATION</span></div>
+  <form method="post" class="transaction-form" id="transactionForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="request_key" id="requestKey">
+    <div class="segment" role="group" aria-label="Transaction type"><label><input type="radio" name="operation" value="transfer" checked><span>Transfer</span></label><label><input type="radio" name="operation" value="deposit"><span>Deposit</span></label><label><input type="radio" name="operation" value="withdraw"><span>Withdraw</span></label></div>
+    <label class="field">From account<select name="source_id" required>{% for account in accounts %}<option value="{{ account.id }}">{{ account.name }} · #{{ account.id }} · {{ account.balance_paise|money }}</option>{% endfor %}</select></label>
+    <label class="field" id="destinationField">To account<select name="destination_id" id="destinationSelect">{% for account in all_accounts %}<option value="{{ account.id }}" {% if account.id == selected_destination %}selected{% endif %}>{{ account.name }} · #{{ account.id }}</option>{% endfor %}</select></label>
+    <label class="field">Amount (INR)<span class="amount-field"><span>₹</span><input name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required></span></label>
+    <p class="form-hint">Transactions use exact paise. A failed transfer rolls back both account updates.</p>
+    <button class="button primary wide" type="submit" {% if not accounts %}disabled{% endif %}>Confirm transaction <span>→</span></button>
+  </form>
+</section><aside class="form-aside"><section class="surface"><span class="eyebrow">THE FLOW</span><h2>One complete move.</h2><div class="flow-step"><b>01</b><span>Validate account and amount</span></div><div class="flow-step"><b>02</b><span>Lock accounts in ID order</span></div><div class="flow-step"><b>03</b><span>Debit, credit and commit together</span></div><div class="flow-step"><b>04</b><span>Check explainable fraud rules</span></div></section><section class="surface note-card"><span class="eyebrow">FRAUD MONITORING</span><p>Transfers of ₹5,000 or more and rapid payment bursts are flagged for review. A flagged transfer may still complete.</p></section></aside></div>
+<div class="payment-progress" id="paymentProgress" role="status" aria-live="polite" hidden><div class="payment-progress-card"><span class="payment-spinner" aria-hidden="true"></span><span class="eyebrow">GEU BANKING SYSTEM</span><h2>Processing transaction</h2><p>Saving the ledger entry and checking for review signals.</p></div></div>
+{% endblock %}

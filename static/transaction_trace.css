@@ -1,0 +1,30 @@
+.runtime-trace{padding:28px 30px 24px}
+.receipt-columns.evidence-only{grid-template-columns:1fr}
+.trace-header{display:flex;justify-content:space-between;align-items:flex-start;gap:22px}
+.trace-header h2{font-size:24px;margin:5px 0 8px}
+.trace-header p{max-width:670px;margin:0;color:#6c8078;font-size:12px;line-height:1.6}
+.trace-count{flex:none;border:1px solid #b7dec8;border-radius:20px;padding:7px 11px;background:#eef9f1;color:#147756;font:700 10px Consolas,monospace;white-space:nowrap}
+.trace-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:22px 0 26px}
+.trace-metrics>div{min-width:0;border:1px solid #dfe9e2;border-radius:9px;background:#f8faf8;padding:13px 15px}
+.trace-metrics small,.trace-metrics strong,.trace-metrics span{display:block;overflow-wrap:anywhere}
+.trace-metrics small{font-size:9px;letter-spacing:.12em;color:#82948a;font-weight:750}
+.trace-metrics strong{font-size:17px;line-height:1.3;color:#1c5b45;margin-top:5px;font-weight:700}
+.trace-metrics span{font-size:10px;color:#8a9b90;margin-top:4px}
+.trace-feed-heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:0 0 10px}
+.trace-feed-heading h3{font-size:17px;letter-spacing:-.025em;margin:3px 0 0}
+.trace-feed-heading>span{font:700 10px Consolas,monospace;color:#638175;white-space:nowrap}
+.trace-feed{list-style:none;margin:0;padding:8px 17px;background:#142523;border:1px solid #25433a;border-radius:12px;color:#d5e5dc}
+.trace-event{display:grid;grid-template-columns:28px 89px minmax(0,1fr);align-items:start;gap:10px;border-bottom:1px solid #ffffff13;padding:11px 2px}
+.trace-event:last-child{border-bottom:0}
+.trace-event.is-key{background:#1e393126;border-radius:6px}
+.trace-index,.trace-elapsed{font:700 10px/1.5 Consolas,monospace;padding-top:3px}
+.trace-index{color:#679985}.trace-elapsed{color:#a8bcb1;white-space:nowrap}
+.trace-message{min-width:0}.trace-component{display:inline-block;min-width:54px;margin-right:10px;color:#7fc6a2;font:700 9px/1.4 Consolas,monospace;letter-spacing:.08em}
+.trace-sqlite .trace-component{color:#b6d993}.trace-risk .trace-component{color:#e7bd85}.trace-flask .trace-component{color:#b0bfeb}
+.trace-message strong{font-size:11px;line-height:1.5;color:#e5f1e8;font-weight:550;overflow-wrap:anywhere}.trace-message small{display:block;margin:4px 0 0 65px;color:#8aaa9b;font:10px Consolas,monospace}
+.trace-deadlock{display:grid;grid-template-columns:125px minmax(0,1fr);gap:12px;align-items:start;border:1px solid #e5d8ae;border-radius:9px;background:#fffaed;padding:14px 16px;margin-top:17px}
+.trace-deadlock>strong{font-size:11px;color:#8b682b}.trace-deadlock p{font-size:11px;line-height:1.6;color:#7a6841;margin:0}.trace-deadlock a{color:#0f8263;text-decoration:underline;text-underline-offset:2px;font-weight:700}
+.trace-footnote{font-size:10px;color:#83978a;line-height:1.6;margin:14px 0 0}.trace-footnote code{font:700 10px Consolas,monospace;color:#17674b}
+.trace-empty{display:flex;gap:18px;align-items:flex-start;background:#f7faf7;border:1px dashed #cfded1;border-radius:11px;padding:22px;margin-top:20px}.trace-empty>span{font-size:27px;color:#6eaa87;line-height:1}.trace-empty h3{font-size:16px;margin:0 0 7px}.trace-empty p{font-size:12px;line-height:1.6;color:#71857a;max-width:560px}.trace-empty .button{display:inline-block;font-size:11px}
+@media(max-width:900px){.trace-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.runtime-trace{padding:21px 17px}.trace-header{display:block}.trace-header h2{font-size:21px}.trace-count{display:inline-block;margin-top:13px}.trace-metrics{gap:7px}.trace-metrics>div{padding:10px}.trace-metrics strong{font-size:14px}.trace-feed{padding:7px 10px}.trace-event{grid-template-columns:23px minmax(0,1fr);gap:2px 7px}.trace-index{grid-row:span 2}.trace-elapsed{font-size:9px}.trace-message{grid-column:2}.trace-component{min-width:0;margin-right:7px}.trace-message strong{font-size:10px}.trace-message small{margin-left:0}.trace-feed-heading{display:block}.trace-feed-heading>span{display:block;margin-top:5px}.trace-deadlock{grid-template-columns:1fr;gap:3px}}

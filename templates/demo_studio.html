@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Demo studio{% endblock %}{% block crumb %}DEMO STUDIO{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='demo_studio.css') }}">{% endblock %}
+{% block content %}
+<div class="page-head"><div><span class="eyebrow">ADMIN / SCENARIOS</span><h1>Demo studio.</h1><p>Choose a scenario. Each click runs the real banking code against a new temporary SQLite database.</p></div><span class="pill neutral">ISOLATED RUN</span></div>
+
+<div class="studio-intro"><div><strong>How this view works</strong><p>The figures below come from actual transactions and database queries. The trace records Python lock and SQLite events from the executed request. The customer database is untouched.</p></div><a class="button secondary" href="{{ url_for('lab') }}">Open thread & deadlock lab <span>→</span></a></div>
+
+<section class="scenario-grid" aria-label="Banking scenarios">
+{% for key, scenario in scenarios.items() %}
+  <form class="surface scenario-card {% if result and result.scenario == key %}selected{% endif %}" method="post" action="{{ url_for('admin_demo') }}#result">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="scenario" value="{{ key }}">
+    <span class="scenario-number">{{ scenario.number }} / SCENARIO</span><h2>{{ scenario.title }}</h2><p>{{ scenario.subtitle }}</p><span class="scenario-concept">{{ scenario.concept }}</span><button class="button primary" type="submit">Run scenario <span>→</span></button>
+  </form>
+{% endfor %}
+</section>
+
+{% if result %}
+<section id="result" class="result-panel" aria-live="polite">
+  <div class="result-heading"><div><span class="eyebrow">OBSERVED RESULT / {{ result.number }}</span><h2>{{ result.title }}</h2><p>{{ result.subtitle }}</p></div><span class="pill {{ 'success' if result.passed else 'warning' }}">{{ 'CHECKS PASSED' if result.passed else 'CHECK RESULTS' }}</span></div>
+  <div class="presenter-note"><strong>System explanation</strong><span>{{ result.talking_point }}</span></div>
+  <div class="result-metrics"><div><span>COMMITTED TRANSFERS</span><strong>{{ result.ledger_count }}</strong></div><div><span>RULE ALERTS</span><strong>{{ result.alerts|length }}</strong></div><div><span>FAILED OPERATIONS</span><strong>{{ result.failure_count }}</strong></div><div><span>TOTAL BALANCE</span><strong>{{ result.after|sum(attribute='balance_paise')|money }}</strong></div></div>
+
+  <div class="result-columns">
+    <section class="surface evidence-card"><span class="eyebrow">DATABASE EVIDENCE</span><h3>Balances before and after</h3><div class="balance-table"><div class="balance-row heading"><span>Account</span><span>Before</span><span>After</span></div>{% for account in result.after %}<div class="balance-row"><span>#{{ account.id }} · {{ account.name }}</span><span>{{ result.before[loop.index0].balance_paise|money }}</span><strong>{{ account.balance_paise|money }}</strong></div>{% endfor %}</div><div class="checks">{% for label, passed in result.checks %}<div><span class="check-icon {{ 'pass' if passed else 'fail' }}">{{ '✓' if passed else '×' }}</span>{{ label }}</div>{% endfor %}</div>{% if result.error %}<p class="expected-error">Request rejected: {{ result.error }}</p>{% endif %}</section>
+    <section class="surface evidence-card"><span class="eyebrow">RULE REVIEW</span><h3>What the checks saw</h3>{% if result.context %}<div class="feature-list"><div><span>Amount</span><strong>{{ result.context.amount_paise|money }}</strong></div><div><span>Earlier transfers · 24 hours</span><strong>{{ result.context.earlier_24h }}</strong></div><div><span>Earlier transfers · 60 seconds</span><strong>{{ result.context.earlier_60s }}</strong></div><div><span>Recipient</span><strong>{{ 'New' if result.context.new_recipient else 'Known' }}</strong></div></div>{% else %}<p class="no-model">No committed transfer was available for review after rollback.</p>{% endif %}<div class="alert-list">{% for alert in result.alerts %}<div><strong>{{ alert.rule.replace('_', ' ')|title }}</strong><span>{{ alert.reason }}</span></div>{% else %}<div class="no-alert">No rule alert created.</div>{% endfor %}</div><p class="model-note">These isolated scenarios demonstrate deterministic rules and transaction safety. Live transfers use the configured intelligence review when available.</p></section>
+  </div>
+
+  <section class="surface trace-card"><div class="section-header"><div><span class="eyebrow">CAPTURED FROM THE EXECUTED REQUEST</span><h3>Backend event trace</h3></div><span class="count-tag">Python thread · account locks · SQLite · risk review</span></div><p class="trace-help">Read top to bottom: the worker requests locks in account-ID order, starts a SQLite transaction, writes the balances and ledger, then commits or rolls back. Fraud checks happen only after commit.</p>{% for run in result.runs %}<details {% if loop.last %}open{% endif %}><summary>{{ run.label }} <span>Thread {{ run.events[0].native_thread_id }} · {{ run.events|length }} events</span></summary><div class="trace-list">{% for event in run.events %}<div class="trace-line"><span class="trace-time">+{{ '%.1f'|format(event.elapsed_ms) }}ms</span><span class="trace-component">{{ event.component }}</span><span class="trace-action">{{ event.action.replace('_', ' ') }}</span><span class="trace-message">{{ event.message }}</span></div>{% endfor %}</div></details>{% endfor %}</section>
+</section>
+{% else %}
+<div class="studio-placeholder"><span>01 → 05</span><strong>Run a scenario to reveal the evidence.</strong><p>For concurrency, lock contention and a bounded deadlock demonstration, use the separate <a href="{{ url_for('lab') }}">Concurrency lab</a>.</p></div>
+{% endif %}
+{% endblock %}
