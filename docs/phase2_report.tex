@@ -1,303 +1,427 @@
 \documentclass[12pt,a4paper]{article}
 
-% Phase-II report based on the Phase-I proposal and the local prototype.
-% Verified on 15 October 2026: 35 automated tests passed.
-% Completed-task allocations supplied by the team: Harsh, Tanisha, Prakhar.
-% Team identifier retained from the user's latest supplied source.
-\usepackage[a4paper,top=1.55cm,bottom=1.35cm,left=1.75cm,right=1.75cm]{geometry}
+% ============================================================
+% PACKAGES
+% ============================================================
+\usepackage[
+    a4paper,
+    top=1.55cm,
+    bottom=1.35cm,
+    left=1.75cm,
+    right=1.75cm
+]{geometry}
+
 \usepackage[T1]{fontenc}
 \usepackage{newtxtext}
-\usepackage{graphicx,xcolor,array,tabularx,fancyhdr,tikz,eso-pic,ragged2e,hyperref}
-\usetikzlibrary{arrows.meta}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usepackage{ragged2e}
+\usepackage{hyperref}
+
+% ============================================================
+% COLORS
+% ============================================================
 \definecolor{GEUBlue}{RGB}{43,91,145}
 \definecolor{GEUBannerBlue}{RGB}{0,102,148}
 \definecolor{GEUYellow}{RGB}{255,201,38}
 \definecolor{InstructionGrey}{RGB}{125,125,125}
+
+% ============================================================
+% GENERAL SETTINGS
+% ============================================================
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
 \renewcommand{\arraystretch}{1.15}
+
+% ============================================================
+% HEADER / FOOTER
+% ============================================================
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\fontsize{10}{12}\selectfont OSDBMS-V-2026-T234 -- SEMESTER 5}
-\fancyhead[R]{\fontsize{10}{12}\selectfont PHASE-II PROJECT PROGRESS}
-\fancyfoot[R]{\fontsize{10}{12}\selectfont Page \thepage}
+
+\fancyhead[L]{%
+    \fontsize{10.5}{12}\selectfont
+    OSDBMS-V-2026-T234 -- SEMESTER 5
+}
+
+\fancyhead[R]{%
+    \fontsize{10.5}{12}\selectfont
+    PHASE-II PROJECT PROGRESS
+}
+
+\fancyfoot[R]{%
+    \fontsize{10}{12}\selectfont
+    Page \thepage
+}
+
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
+
 \setlength{\headheight}{20pt}
 \setlength{\headsep}{0.65cm}
 \setlength{\footskip}{0.65cm}
-\AddToShipoutPictureBG{\begin{tikzpicture}[remember picture,overlay]
-  \fill[GEUYellow] (current page.south west) rectangle ([yshift=0.14cm]current page.south east);
-\end{tikzpicture}}
-% End the previous paragraph BEFORE changing heading fonts or adding space.
-% End each styled paragraph INSIDE its font group to preserve line spacing.
-\newcommand{\sectiontitle}[1]{\par\noindent{\color{GEUBlue}\fontsize{18}{22}\selectfont #1\par}\nobreak}
-\newcommand{\instruction}[1]{\par\noindent{\color{InstructionGrey}\fontsize{10.5}{13}\selectfont #1\par}\nobreak}
-\newcommand{\banner}[1]{\par\noindent\colorbox{GEUBannerBlue}{\parbox{\dimexpr\textwidth-2\fboxsep\relax}{\vspace{0.17cm}{\color{GEUYellow}\fontsize{16}{20}\selectfont\bfseries #1\par}\vspace{0.17cm}}}\par}
-% Flexible boxes prevent longer answers from overflowing fixed-height boxes.
-\newcommand{\answerbox}[1]{\par\noindent\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}X|}\hline
-  \rule{0pt}{15pt}\fontsize{11}{14}\selectfont #1\rule[-5pt]{0pt}{5pt}\\\hline
-\end{tabularx}\par}
-\newcommand{\gap}{\par\addvspace{0.55cm}}
 
-% Image filenames: upload these files beside main.tex in Overleaf.
-\newcommand{\universitylogofile}{geulogo.png}
-\newcommand{\harshphotofile}{HARSH-Photoroom.png}
-\newcommand{\prakharphotofile}{prakhar.jpeg}
-\newcommand{\tanishaphotofile}{Tanisha.jpeg}
-\newcommand{\memberphoto}[1]{\par\vspace{3pt}\IfFileExists{#1}{\includegraphics[width=2.3cm,height=1.5cm,keepaspectratio]{#1}}{\fbox{\parbox[c][1.3cm][c]{2.1cm}{\centering\scriptsize Photo}}}\par}
+% ============================================================
+% BOTTOM YELLOW LINE
+% ============================================================
+\AddToShipoutPictureBG{%
+\begin{tikzpicture}[remember picture,overlay]
+    \fill[GEUYellow]
+    (current page.south west)
+    rectangle
+    ([yshift=0.14cm]current page.south east);
+\end{tikzpicture}
+}
 
+% ============================================================
+% CUSTOM COMMANDS
+% ============================================================
+\newcommand{\sectiontitle}[1]{%
+    \par\noindent{\color{GEUBlue}
+    \fontsize{18}{22}\selectfont #1\par}\nobreak
+}
+
+\newcommand{\instruction}[1]{%
+    \par\noindent{\color{InstructionGrey}
+    \fontsize{10.5}{13}\selectfont #1\par}\nobreak
+}
+
+\newcommand{\answerbox}[2]{%
+    \par\noindent
+    \begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}X|}
+    \hline
+    \begin{minipage}[t]{\linewidth}
+      \vspace*{5pt}\fontsize{11}{14}\selectfont #2\par\vspace{5pt}
+    \end{minipage}\\
+    \hline
+    \end{tabularx}\par
+}
+
+% ============================================================
+% DOCUMENT
+% ============================================================
 \begin{document}
-\vspace*{0.1cm}
-% Optional original image assets may be added for an external LaTeX project.
-% The document also compiles as a single file in the built-in editor.
-\noindent\IfFileExists{\universitylogofile}{\includegraphics[width=8cm,height=2.6cm,keepaspectratio]{\universitylogofile}}{{\color{GEUBlue}\fontsize{22}{26}\selectfont\bfseries GRAPHIC ERA\par}{\fontsize{12}{16}\selectfont DEEMED TO BE UNIVERSITY\par}}\par
-\vspace{0.65cm}
-\banner{PROJECT AND TEAM INFORMATION}
-\gap
+
+% ============================================================
+% PAGE 1
+% ============================================================
+
+\vspace*{0.10cm}
+
+% Upload Graphic Era logo as graphicera_logo.png
+\IfFileExists{geulogo.png}{\includegraphics[width=8.0cm]{geulogo.png}}{{\color{GEUBlue}\fontsize{22}{26}\selectfont\bfseries GRAPHIC ERA}}
+
+\vspace{0.70cm}
+
+\noindent
+\colorbox{GEUBannerBlue}{%
+\parbox{\dimexpr\textwidth-2\fboxsep\relax}{
+    \vspace{0.17cm}
+    {\color{GEUYellow}
+    \fontsize{16.5}{20}\selectfont
+    \bfseries
+    PROJECT AND TEAM INFORMATION}
+    \vspace{0.17cm}
+}}
+
+\vspace{0.80cm}
+
+% PROJECT TITLE
 \sectiontitle{Project Title}
+
+\vspace{0.05cm}
+
 \instruction{(Try to choose a catchy title. Max 20 words).}
-\vspace{0.25cm}
-\answerbox{\textbf{Secure Concurrent Banking Transaction System with Fraud Detection}}
-\gap
-\sectiontitle{Student/Team Information}
-\vspace{0.25cm}
-\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.43\textwidth}|>{\RaggedRight\arraybackslash}X|}
+
+\vspace{0.40cm}
+
+\answerbox{1.00cm}{\textbf{Secure Concurrent Banking Transaction System with Fraud Detection}}
+
+\vspace{0.80cm}
+
+% STUDENT INFORMATION
+% \sectiontitle{Student/Team Information}
+
+% \vspace{0.40cm}
+
+% \begin{tabularx}{\textwidth}{
+% |>{\raggedright\arraybackslash}p{0.66\textwidth}
+% |>{\raggedright\arraybackslash}X|
+% }
+% \hline
+
+% \parbox[t][1.15cm][t]{\linewidth}{
+% \vspace{4pt}
+% \fontsize{10.5}{13}\selectfont
+% Team Name:\\[2pt]
+% Team \# (Mentor needs to assign)
+% }
+% &
+% \\
+% \hline
+
+% \parbox[t][3.65cm][t]{\linewidth}{
+% \vspace{5pt}
+% \fontsize{10.5}{13}\selectfont
+% Team member 1 (Team Lead)\\[3pt]
+% {\color{InstructionGrey}
+% (Last Name, name: student ID: email, picture):}
+% }
+% &
+% \\
+% \hline
+
+% \parbox[t][3.65cm][t]{\linewidth}{
+% \vspace{5pt}
+% \fontsize{10.5}{13}\selectfont
+% Team member 2\\[3pt]
+% {\color{InstructionGrey}
+% (Last Name, name: student ID: email, picture):}
+% }
+% &
+% \\
+% \hline
+
+% \end{tabularx}
+
+% \newpage
+\noindent
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.41\textwidth}|>{\RaggedRight\arraybackslash}X|}
 \hline
-\textit{Team Name / Team \#} & Alpha / OSDBMS-V-2026-T234\\[7pt]\hline
-\begin{minipage}[t][3.4cm][t]{\linewidth}\vspace{3pt}\textbf{Team member 1 (Team Lead)}\par\small Name, student ID, roll number, section and email\end{minipage}
-& \begin{minipage}[t][3.4cm][t]{\linewidth}\vspace{3pt}Bhatia, Harsh -- 24021741\\Roll No. 2026031\quad Section: ML2\\24021741@geu.ac.in
-\memberphoto{\harshphotofile}\end{minipage}\\\hline
-\begin{minipage}[t][3.4cm][t]{\linewidth}\vspace{3pt}\textbf{Team member 2}\par\small Name, student ID, roll number, section and email\end{minipage}
-& \begin{minipage}[t][3.4cm][t]{\linewidth}\vspace{3pt}Garg, Prakhar -- 240111564\\Roll No. 2025365\quad Section: H\\240111564@geu.ac.in
-\memberphoto{\prakharphotofile}\end{minipage}\\\hline
-\begin{minipage}[t][3.4cm][t]{\linewidth}\vspace{3pt}\textbf{Team member 3}\par\small Name, student ID, roll number, section and email\end{minipage}
-& \begin{minipage}[t][3.4cm][t]{\linewidth}\vspace{3pt}Kapoor, Tanisha -- 24022091\\Roll No. 2025750\quad Section: AI\\24022091@geu.ac.in
-\memberphoto{\tanishaphotofile}\end{minipage}\\\hline
-\end{tabularx}\par
+\textit{Team Name / Team \#} & Alpha / OSDBMS-V-2026-T234\\[5pt]\hline
+\textbf{Mentor} & (Prof.) Dr. Mohammad Wazid\\[5pt]\hline
+\parbox[c][3.35cm][c]{\linewidth}{\textbf{Team member 1 (Lead)}\\Transactions, concurrency and AI}
+&
+\parbox[c][3.35cm][c]{\linewidth}{Bhatia, Harsh -- 24021741\\Roll No. 2026031; Section ML2\\24021741@geu.ac.in\\[2mm]
+\IfFileExists{HARSH-Photoroom.png}{\includegraphics[width=2.4cm,height=1.45cm,keepaspectratio]{HARSH-Photoroom.png}}{\fbox{\scriptsize Photo}}}
+\\\hline
+\parbox[c][3.35cm][c]{\linewidth}{\textbf{Team member 2}\\Web interface and integration}
+&
+\parbox[c][3.35cm][c]{\linewidth}{Garg, Prakhar -- 240111564\\Roll No. 2025365; Section H\\240111564@geu.ac.in\\[2mm]
+\IfFileExists{prakhar.jpeg}{\includegraphics[width=2.4cm,height=1.45cm,keepaspectratio]{prakhar.jpeg}}{\fbox{\scriptsize Photo}}}
+\\\hline
+\parbox[c][3.35cm][c]{\linewidth}{\textbf{Team member 3}\\Database and project notes}
+&
+\parbox[c][3.35cm][c]{\linewidth}{Kapoor, Tanisha -- 24022091\\Roll No. 2025750; Section AI\\24022091@geu.ac.in\\[2mm]
+\IfFileExists{Tanisha.jpeg}{\includegraphics[width=2.4cm,height=1.45cm,keepaspectratio]{Tanisha.jpeg}}{\fbox{\scriptsize Photo}}}
+\\\hline
+\end{tabularx}
 
 \newpage
+% ============================================================
+% PAGE 2
+% ============================================================
+
 \vspace*{0.15cm}
-\banner{PHASE-II PROJECT PROGRESS DESCRIPTION (35 pts)}
-\gap
+
+\noindent
+\colorbox{GEUBannerBlue}{%
+\parbox{\dimexpr\textwidth-2\fboxsep\relax}{
+    \vspace{0.18cm}
+    {\color{GEUYellow}
+    \fontsize{17}{21}\selectfont
+    \bfseries
+    PHASE-II PROJECT PROGRESS DESCRIPTION (35 pts)}
+    \vspace{0.18cm}
+}}
+
+\vspace{0.70cm}
+
+% PROJECT ABSTRACT
 \sectiontitle{Project Abstract (2 pts)}
-\instruction{(Brief restatement of your project's main goal. Max 300 words).}
-\vspace{0.2cm}
-\answerbox{Our project looks at a basic problem in banking software: what happens when several requests try to change the same account balance? A withdrawal or transfer may work correctly on its own, but overlapping requests need extra care. We are building a local banking application to demonstrate this using sample accounts and Python threads.
-\par\medskip
-In Phase II, we have connected the database with deposit, withdrawal and transfer operations. Account locks coordinate the threads, and SQLite transactions keep the debit, credit and transfer record together. If a transfer stops after the debit, rollback restores the balances. The application also checks request keys so that submitting the same request again does not move the money twice.
-\par\medskip
-The browser interface lets customers view their accounts and carry out transactions. An administrator can review rule alerts for large transfers, rapid activity and repeated failures, plus a separate AI transfer-risk alert. A local prototype was trained on public BankSim data, but its INR calibration remains in progress. An optional interim Groq API review is available when configured, with the local prototype as fallback. The application includes automated tests and examples of lost updates and circular waiting. Our aim is to make thread synchronization and database transactions clear through a working application.}
-\gap
+
+\vspace{0.05cm}
+
+\instruction{
+(Brief restatement of your project's main goal. Max 300 words).
+}
+
+\vspace{0.12cm}
+
+\answerbox{3.60cm}{Our project demonstrates how a banking application preserves balances when several requests arrive together. Customers deposit, withdraw and transfer sample funds through a Flask interface. Python account locks coordinate overlapping requests; each money movement uses a SQLite transaction so an interrupted transfer rolls back. Unique request keys prevent retries from moving money twice. A Concurrency Lab shows lost updates, ordered locking and a bounded deadlock example. The administrator reviews rule alerts for high-value or rapid activity and repeated failures. Following mentor feedback to focus on AI implementation, we added an interim Groq review of committed transfers and trained a BankSim-based local prototype. Its calibration for INR transactions and further validation remain in progress. The system is an educational prototype, not a production bank.}
+
+\vspace{0.70cm}
+
+% UPDATED PROJECT APPROACH
 \sectiontitle{Updated Project Approach and Architecture (2 pts)}
-\instruction{(Describe the current approach, system design, communication protocols and libraries. Max 300 words).}
-\vspace{0.2cm}
-\answerbox{The current application has two ways to submit banking operations: the Flask pages and the command-line tool. Both call \texttt{transaction\_manager.py}, so the balance checks and transfer logic are shared. Flask 3.1.2 serves the HTML, CSS and JavaScript interface over local HTTP. The lab display receives its updates as JSON.
-\par\medskip
-\texttt{database.py} prepares the SQLite tables and sample accounts. We store INR 250.50 as 25050 paise; the balance calculations therefore use integers. Separate records hold completed transactions, failed attempts and fraud alerts.
-\par\medskip
-For a transfer involving accounts 1 and 2, the locking code requests account 1 first, even when account 2 is sending the money. Using the same order for both directions avoids an account-lock cycle. Once the locks are held, \texttt{BEGIN IMMEDIATE} reserves the database writer before balances are read. The debit, credit and history entry are committed together. The failure test interrupts this sequence after the debit to check that rollback restores both balances. Cleanup closes the connection and releases the locks.
-\par\medskip
-\texttt{client\_sim.py} starts several workers, each using its own connection. This creates competing requests, although SQLite still processes one writer at a time. Password hashes are checked through \texttt{security.py}; the web routes also check account ownership, roles and form tokens. The command-line tool assumes trusted local use. Fraud rules examine activity through the web handlers. A BankSim-trained logistic-regression prototype scores committed transfers using amount, earlier activity and recipient history. When configured, an external Groq API supplies an interim review signal; the local prototype is its fallback. Login failures remain rule-based. The administrator reviews the alerts. Lab demonstrations use temporary data. The next page shows these connections.}
 
-\newpage
-\vspace*{0.2cm}
-\sectiontitle{System Architecture Diagram}
-\vspace{0.35cm}
-{\centering\color{GEUBannerBlue}\fontsize{16}{20}\selectfont
-\bfseries Banking Transaction System -- Architecture\par}
+\vspace{0.05cm}
+
+\instruction{
+(Describe your current approach, including system design,
+communication protocols, libraries used, etc.\\
+Max 300 words).
+}
+
 \vspace{0.25cm}
 
-% Vector diagram: no external image is needed for this section.
-% The canvas is 16.9 cm wide, within the report's 17.5 cm text area.
-\noindent\makebox[\textwidth][c]{%
-\begin{tikzpicture}[
-  x=1cm,y=1cm,
-  font=\sffamily\fontsize{10}{12}\selectfont,
-  process/.style={draw=GEUBannerBlue,line width=1.2pt,
-    rounded corners=5pt,fill=GEUBannerBlue!7,
-    text width=4.05cm,minimum height=3.1cm,align=center,inner sep=7pt},
-  output/.style={process,text width=6.6cm,minimum height=3.7cm},
-  flow/.style={-{Stealth[length=2.6mm,width=1.8mm]},
-    draw=black!80,line width=1pt},
-  labeltext/.style={font=\sffamily\fontsize{9}{11}\selectfont,
-    align=center,fill=white,inner sep=2pt},
-  stage/.style={anchor=west,text=black!55,
-    font=\sffamily\bfseries\fontsize{10}{12}\selectfont},
-  owner/.style={font=\sffamily\itshape\fontsize{9}{11}\selectfont,
-    text=black!60,align=center},
-  dbtable/.style={draw=GEUYellow!65!black,line width=0.8pt,
-    rounded corners=3pt,fill=white,text width=3.4cm,
-    minimum height=0.65cm,align=center,inner sep=3pt,
-    font=\ttfamily\fontsize{10}{12}\selectfont}
-]
-\path[use as bounding box] (0,0) rectangle (16.9,-14.4);
-
-\node[stage] at (0.15,-0.25) {1. REQUEST HANDLING AND CONCURRENCY};
-\node[process] (access) at (2.45,-2.25) {
-  {\bfseries\color{GEUBannerBlue}Clients and Access}\\[6pt]
-  Browser: Flask login, roles,\\
-  account and form checks\\[4pt]
-  Local command-line requests\\
-  Simulated clients / threads
-};
-\node[process] (transaction) at (8.45,-2.25) {
-  {\bfseries\color{GEUBannerBlue}Transaction Manager}\\[6pt]
-  Deposit, withdraw, transfer\\
-  Input and balance checks\\
-  Duplicate-request checks\\
-  Commit or rollback
-};
-\node[process] (locking) at (14.45,-2.25) {
-  {\bfseries\color{GEUBannerBlue}Concurrency Control}\\[6pt]
-  Python account mutexes\\
-  Locks in account-ID order\\
-  Bounded lock waiting\\
-  Release on success or error
-};
-\draw[flow] (access.east) -- node[labeltext,above] {requests} (transaction.west);
-\draw[flow] (transaction.east) -- node[labeltext,above] {acquire\\locks} (locking.west);
-\node[owner] at (8.45,-4.02) {Harsh Bhatia};
-\node[owner] at (14.45,-4.02) {Harsh Bhatia};
-
-\node[stage] at (0.15,-4.75) {2. STORAGE AND TRANSACTION RECORDS};
-\draw[draw=GEUYellow!65!black,line width=1.2pt,
-  rounded corners=6pt,fill=GEUYellow!12]
-  (2.15,-5.5) rectangle (14.75,-8.3);
-\node[font=\sffamily\bfseries\fontsize{12}{14}\selectfont,
-  text=GEUYellow!40!black] at (8.45,-5.9) {SQLite Database};
-\node[dbtable] at (4.35,-6.55) {users};
-\node[dbtable] at (8.45,-6.55) {accounts};
-\node[dbtable] at (12.55,-6.55) {transactions};
-\node[dbtable] at (4.35,-7.4) {failed\_attempts};
-\node[dbtable] at (8.45,-7.4) {login\_attempts};
-\node[dbtable,draw=red!65!black,fill=red!4,
-  text=red!65!black] at (12.55,-7.4) {fraud\_alerts};
-\draw[flow] (locking.south west) --
-  node[labeltext,pos=0.7,right] {locks obtained;\\database transaction} (11.6,-5.5);
-\node[owner] at (8.45,-8.56) {Database schema and storage: Tanisha Kapoor};
-
-\node[stage] at (0.15,-9.7) {3. FRAUD CHECKS AND MONITORING};
-\node[output] (fraud) at (4.05,-11.8) {
-  {\bfseries\color{GEUBannerBlue}Rule-Based Fraud Detection}\\[7pt]
-  High-value and rapid transfers\\[3pt]
-  Repeated failed operations or logins\\[3pt]
-  Unauthorized account actions\\[3pt]
-  Matching rule creates a review alert
-};
-\node[output] (dashboard) at (12.8,-11.8) {
-  {\bfseries\color{GEUBannerBlue}Web Dashboard}\\[7pt]
-  Customer balances and activity\\[3pt]
-  Admin alert details and review status\\[3pt]
-  Concurrency lab and thread display\\[3pt]
-  Lab uses a separate temporary database
-};
-\draw[flow] (3.15,-8.3) -- node[labeltext,pos=0.4,left] {read\\activity} (3.15,-9.95);
-\draw[flow] (5.25,-9.95) -- node[labeltext,pos=0.6,right] {save\\alerts} (5.25,-8.3);
-\draw[flow] (12.8,-8.3) -- node[labeltext,pos=0.4,right] {read accounts,\\history and alerts} (12.8,-9.95);
-\node[owner] at (4.05,-13.9) {Prakhar Garg};
-\node[owner] at (12.8,-13.9) {Prakhar Garg};
-\end{tikzpicture}%
-}\par
-\vspace{0.15cm}
-{\centering\fontsize{10}{12}\selectfont
-Figure 1: Main components and data flow of the banking prototype.\par}
-\vspace{0.35cm}
-\answerbox{The upper row follows a banking request through the service and its account locks. The middle block shows where the resulting records are stored. A completed transfer belongs in \texttt{transactions}; a rejected attempt is recorded separately in \texttt{failed\_attempts}. Keeping these records separate allows the history to distinguish a completed payment from an unsuccessful request.
-\par\medskip
-The two lower blocks use this stored activity. For example, the web transfer handler checks a committed transfer against the fraud rules. A transfer of INR 5,000 or more creates a high-value alert for review; the alert itself does not reverse the payment. The administrator can inspect its reason and mark it reviewed. The lab display follows a separate demonstration database, so running the thread and rollback examples leaves customer balances unchanged.}
+\answerbox{4.75cm}{Flask serves customer and administrator pages over local HTTP. The web interface and command-line tool call the same \texttt{transaction\_manager.py} service. Amounts are stored as integer paise, not floating-point rupees. The service validates an operation, acquires account locks in ascending ID order, opens its own SQLite connection and starts \texttt{BEGIN IMMEDIATE} before reading balances. Debit, credit and the successful transaction record commit together; errors cause rollback. The failed-attempt audit is written separately after rollback. SQLite WAL lets readers overlap with a writer, although SQLite still permits only one writer at a time. The threaded simulator uses separate connections and checks balance invariants. Web routes check password hashes, roles, ownership and form tokens. Rule-based risk scans run after commit. When configured, Groq reviews a committed transfer using amount and recent-activity features; flagged reviews appear in the Risk Desk. The BankSim-trained local model remains a separate prototype and is not used for live scoring. Demo Studio and Concurrency Lab use isolated temporary data.}
 
 \newpage
-\vspace*{0.2cm}
+
+% ============================================================
+% PAGE 3
+% ============================================================
+
+\vspace*{0.20cm}
+
+% TASKS COMPLETED
 \sectiontitle{Tasks Completed (7 pts)}
-\instruction{(Describe the main tasks already completed. Max 250 words).}
-\vspace{0.2cm}
-{\fontsize{11}{13}\selectfont
-\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.69\textwidth}|>{\RaggedRight\arraybackslash}X|}\hline
+
+\vspace{0.05cm}
+
+\instruction{
+(Describe the main tasks that have been assigned and already completed.
+Max 250 words).
+}
+
+\vspace{0.20cm}
+
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.70\textwidth}|>{\RaggedRight\arraybackslash}X|}
+\hline
 \textbf{Task Completed} & \textbf{Team Member}\\\hline
-Implemented deposits, withdrawals and transfers as atomic operations, with input checks, commit, rollback and duplicate-request protection. Built the threaded simulator and account-locking logic. Used fixed lock order and bounded waits, and added lost-update and deadlock demonstrations. Trained a BankSim fraud-risk prototype and integrated an optional external Groq review, with explainable alerts and a local fallback. & Harsh Bhatia\\\hline
-Designed the SQLite schema and set up users, sample accounts, balances, transaction history, failed-attempt logs and fraud-alert storage. Added database constraints, connections and queries. Prepared the project plan, architecture notes, demonstration guide and recorded test results. & Tanisha Kapoor\\\hline
-Connected the Flask pages to the backend, with customer/admin views, transaction forms, account activity, fraud alerts and the concurrency lab. Added banking and web tests. & Prakhar Garg\\\hline
-\end{tabularx}\par}
-\gap
+Atomic deposits, withdrawals and transfers; rollback, duplicate-request checks, ordered account locks, threaded simulator and race/deadlock demos. BankSim local-model prototype and optional Groq transfer review. & Harsh Bhatia\\\hline
+SQLite schema, sample accounts, constraints, transaction and alert storage; architecture notes, project plan, demonstration guide and recorded test results. & Tanisha Kapoor\\\hline
+Flask customer/admin pages, transaction forms, account/history queries and Risk Desk views, Concurrency Lab with live thread and lock events, and web tests in the local working copy. & Prakhar Garg\\\hline
+\end{tabularx}
+
+\vspace{0.65cm}
+
+% CHALLENGES
 \sectiontitle{Challenges/Roadblocks (7 pts)}
-\instruction{(Describe challenges and how you plan to solve them. Max 300 words).}
+
+\vspace{0.05cm}
+
+\instruction{
+(Describe the challenges that you have faced or are facing so far
+and how you plan to solve them. Max 300 words).
+}
+
 \vspace{0.18cm}
-\answerbox{The main concern is keeping the balance correct when requests overlap. For example, two withdrawals could both read an old balance before either update is saved. The current code uses account locks and a database transaction to protect this sequence. Transfers take the locks in a fixed order so that two threads do not wait on each other's account locks.
-\par\medskip
-A transfer also needs to recover if it fails halfway through. The tests deliberately stop one after the debit and check that neither account keeps a partial change. The failed attempt is logged after rollback; logging it inside the same transaction would erase the failure record too.
-\par\medskip
-There is a limit to what the concurrency tests can show about speed. SQLite handles one writer at a time, so more threads can mean more waiting. We still need larger runs to compare timings and check that the balances remain correct.
-\par\medskip
-The fraud rules also need further checking around their amount and time limits. A legitimate customer may make several transfers quickly, so these cases should be flagged for review rather than treated as confirmed fraud.}
-\gap
+
+\answerbox{4.05cm}{Overlapping withdrawals can both see an old balance and cause a lost update. Account locks coordinate threads in this process, while \texttt{BEGIN IMMEDIATE} reserves the SQLite writer before balances are read. Opposing transfers might deadlock if each locks its source first; acquiring account IDs in a fixed ascending order prevents that account-lock cycle. A failure after debit must not leave a partial transfer, so the debit, credit and history record share one database transaction and the failure test verifies rollback. Fraud review raises a different challenge: a large but legitimate transfer can be flagged. The current rules and AI response request administrator review rather than automatically reversing a payment. The BankSim prototype still needs INR calibration and evaluation against labelled examples. More threads do not guarantee faster writes because SQLite permits one writer at a time.}
+
+\vspace{0.65cm}
+
+% TASKS PENDING
 \sectiontitle{Tasks Pending (7 pts)}
-\instruction{(Describe the main tasks still to complete. Max 250 words).}
+
+\vspace{0.05cm}
+
+\instruction{
+(Describe the main tasks that you still need to complete.
+Max 250 words).
+}
+
 \vspace{0.18cm}
-{\fontsize{11}{13}\selectfont
-\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.69\textwidth}|>{\RaggedRight\arraybackslash}X|}\hline
-\textbf{Task Pending} & \textbf{Team Member (to complete the task)}\\\hline
-Calibrate the fraud prototype for INR transactions, test the Groq API with a new key, and run larger threaded workloads. Record inputs, timings and balance checks. & Harsh Bhatia\\\hline
-Push the database files, project notes and test results to the shared repository. Review the full browser demonstration and finish the report, presentation and demonstration video. & Tanisha Kapoor\\\hline
-Push the web interface and remaining tests to the shared repository, then review the final browser demonstration. & Prakhar Garg\\\hline
-\end{tabularx}\par}
+
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.70\textwidth}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\textbf{Task Pending} & \textbf{Team Member}\\\hline
+Calibrate and validate the local fraud prototype for INR; measure larger threaded workloads. & Harsh Bhatia\\\hline
+Review final results, finish report and demo video, and confirm repository documentation. & Tanisha Kapoor\\\hline
+Commit local web work with own GitHub account and rehearse the complete browser demo. & Prakhar Garg\\\hline
+\end{tabularx}
 
 \newpage
-\vspace*{0.3cm}
+
+% ============================================================
+% PAGE 4
+% ============================================================
+
+\vspace*{0.30cm}
+
+% PROJECT OUTCOME
 \sectiontitle{Project Outcome/Deliverables (2 pts)}
-\instruction{(Describe the key outcomes/deliverables. Max 200 words).}
-\vspace{0.25cm}
-\answerbox{The project will provide a runnable banking application with sample accounts and a clear record of account activity. A user will be able to deposit, withdraw and transfer money, while an administrator can review rule alerts and AI transfer-risk alerts.
-\par\medskip
-For the OS and DBMS demonstration, the application includes a threaded simulator and tests of the resulting balances. The rollback example shows what happens when a transfer fails between debit and credit. Separate examples show how a lost update occurs and how two threads can enter circular waiting.
-\par\medskip
-The submission will include the source code, database schema, test cases, recorded results and instructions for running the application. The architecture notes explain how the modules connect. The final report, slides and demonstration video will bring these parts together so that the working of the project can be followed from a transaction request to its result.}
-\gap
+
+\vspace{0.05cm}
+
+\instruction{
+(Describe what are the key outcomes / deliverables of the project.
+Max 200 words).
+}
+
+\vspace{0.35cm}
+
+\answerbox{3.35cm}{The deliverable is a runnable local banking prototype with customer and administrator views, sample accounts, deposits, withdrawals and transfers. Each successful operation records history, while failed operations can be inspected separately. The Concurrency Lab demonstrates how an unsafe shared update loses money and how synchronization changes the result. The rollback scenario shows that an interrupted transfer leaves balances unchanged. The Risk Desk shows rule alerts and optional external AI review of committed transfers. The submission includes the Python source, SQLite schema, tests, recorded demonstration results, run instructions and a presentation. The final phase will add stronger evaluation of the local fraud prototype and larger concurrency workloads.}
+
+\vspace{0.75cm}
+
+% PROGRESS OVERVIEW
 \sectiontitle{Progress Overview (2 pts)}
-\instruction{(Summarize what is done, behind schedule or ahead of schedule. Max 200 words).}
+
+\vspace{0.05cm}
+
+\instruction{
+(Summarize how much of the project is done, what's behind schedule,
+what's ahead of schedule. Max 200 words.)
+}
+
 \vspace{0.25cm}
-\answerbox{The main Phase-II features are now connected. Banking operations use the database and account locks, the simulator can run several clients, and failed transfers can be rolled back. All 37 automated tests passed in the latest local run.
-\par\medskip
-We have also implemented some features planned for Phase III: login, customer and administrator roles, fraud alerts, a BankSim-trained AI prototype, an optional Groq API review, and the dashboard. Their implementation is ahead of the phase sequence in the proposal, but more testing is needed before calling the project finished.
-\par\medskip
-The next steps are larger workload comparisons, additional fraud-rule tests and a review of the complete browser demonstration. The final presentation and video are still pending.
-\par\medskip
-Phase I listed milestones without calendar deadlines. We can therefore compare progress with the planned phases, but cannot report a measured delay in days. At this stage, the core application is working and the remaining work is mainly testing and submission preparation.}
+
+\answerbox{4.45cm}{Core Phase-II functionality works locally: atomic transactions, account locking, a threaded simulator, customer/admin pages, transaction traces and fraud-review screens. On 19 October 2026, all 45 automated tests passed. The recorded demonstration also passed rollback, opposing-transfer, race and deadlock scenarios; 100 transfer operations with 10 threads preserved the total balance. Mentor feedback to focus on AI implementation led to a BankSim-trained prototype and an interim Groq API review. The local model is not in the live payment path while INR calibration remains incomplete. The GitHub repository contains Harsh's core/AI commits and Tanisha's database contribution; Prakhar's web work and subsequent local changes still need individual commits. The final report, presentation review and demonstration video remain to be completed. No percentage completion is claimed because the remaining validation has not been quantified.}
 
 \newpage
-\vspace*{0.2cm}
+
+% ============================================================
+% PAGE 5
+% ============================================================
+
+\vspace*{0.20cm}
+
+% CODEBASE
 \sectiontitle{Codebase Information (2 pts)}
-\instruction{(Repository link, branch and important commits).}
-\vspace{0.2cm}
-\answerbox{\textbf{Repository:} \url{https://github.com/harshbhatia04/secure-banking-system}. Branch \texttt{main}. Harsh's transaction, concurrency and local AI prototype modules were uploaded in commit \texttt{bed0cd0}. Tanisha's database and project-note files were uploaded in commit \texttt{829d40f}. The web module awaits Prakhar's commit.
-\par\medskip
-\textbf{Code organisation:} Database setup is in \texttt{database.py} and \texttt{schema.sql}. Banking operations are in \texttt{transaction\_manager.py}. Locking and simulated clients are in \texttt{concurrency\_manager.py} and \texttt{client\_sim.py}. The web application uses \texttt{web\_app.py}, \texttt{security.py} and \texttt{fraud\_detector.py}, with its pages and assets in \texttt{templates/} and \texttt{static/}.
-\par\medskip
-\textbf{Tests and notes:} The automated checks are in \texttt{tests/}. The \texttt{docs/} folder contains design notes, workload results and the demonstration guide. Setup and run instructions are given in \texttt{README.md}.}
-\gap
+
+\vspace{0.05cm}
+
+\instruction{
+(Repository link, branch, and information about important commits.)
+}
+
+\vspace{0.20cm}
+
+\answerbox{3.70cm}{Repository: \url{https://github.com/harshbhatia04/secure-banking-system}; branch \texttt{main}. The history includes Harsh's \texttt{bed0cd0} commit for the transaction, concurrency and AI prototype modules and Tanisha's \texttt{829d40f} commit for assigned database and project-note files. Prakhar's web files and later demo work are present locally but not yet committed under his account. Key modules are \texttt{transaction\_manager.py}, \texttt{concurrency\_manager.py}, \texttt{client\_sim.py}, \texttt{database.py}, \texttt{schema.sql}, \texttt{web\_app.py}, \texttt{fraud\_detector.py} and \texttt{groq\_fraud.py}. The repository README explains setup and limitations. API credentials are kept out of Git.}
+
+\vspace{0.65cm}
+
+% TESTING
 \sectiontitle{Testing and Validation Status (2 pts)}
-\instruction{(Provide information about tests conducted).}
-\vspace{0.2cm}
-{\fontsize{10.5}{12.5}\selectfont
-\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.25\textwidth}|>{\RaggedRight\arraybackslash}p{0.13\textwidth}|>{\RaggedRight\arraybackslash}X|}\hline
+
+\vspace{0.05cm}
+
+\instruction{(Provide information about any tests conducted)}
+
+\vspace{0.30cm}
+
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{0.34\textwidth}|>{\RaggedRight\arraybackslash}p{0.20\textwidth}|>{\RaggedRight\arraybackslash}X|}
+\hline
 \textbf{Test Type} & \textbf{Status} & \textbf{Notes}\\\hline
-Banking operations and validation & Pass & Valid operations changed balances correctly. Invalid inputs, insufficient funds and frozen accounts were rejected.\\\hline
-Rollback and duplicate requests & Pass & A forced failure left balances unchanged. Repeating a request moved money only once. Locks were released.\\\hline
-Concurrent operations & Pass & All 100 deposits were recorded. Competing withdrawals could not overspend. Transfers in opposite directions finished.\\\hline
-Race and circular-wait demonstrations & Pass & The unsafe example lost an update; the locked version gave the correct result. Lock timeouts ended circular waiting.\\\hline
-Web access, fraud rules and AI review & Pass & Tests covered login, roles, form tokens, high-value alerts, AI alerts, mocked Groq responses, local fallback and alert review. A live Groq call is pending.\\\hline
-Rapid-activity boundary cases & Pending & Further tests are needed for transfers at the edges of the time window and for repeated alert scans.\\\hline
-\end{tabularx}\par}
-\par\vspace{0.15cm}
-{\fontsize{10}{12}\selectfont\noindent Verification: 18 October 2026; \texttt{python -m unittest discover -s tests -v}; 37 tests passed in temporary databases.\par
-\smallskip\noindent Earlier recorded demonstrations passed six scenarios and eight workloads, using 1, 5, 10 and 20 threads with 100 operations per workload.\par}
-\gap
+Automated test suite & Pass & 45 tests passed locally on 19 October 2026.\\\hline
+Rollback after debit & Pass & Both balances unchanged after injected failure.\\\hline
+Opposing transfers & Pass & Fixed account-lock order completed without a cycle.\\\hline
+Threaded simulation & Pass & 100 transfers / 10 threads conserved total balance.\\\hline
+\end{tabularx}
+
+\vspace{0.65cm}
+
+% DELIVERABLES PROGRESS
 \sectiontitle{Deliverables Progress (2 pts)}
-\instruction{(Indicate whether each key deliverable is completed, in progress or pending).}
-\vspace{0.2cm}
-\answerbox{\textbf{Completed for this phase:} The database, transaction service and threaded simulator are working. The browser interface, fraud rules, AI transfer-risk scoring and access checks are connected locally. The project also has automated tests, recorded results, design notes and a demonstration guide.
-\par\medskip
-\textbf{In progress:} Fraud-model calibration, a live Groq API check with a new key, further concurrent-workload checks and preparation of the final report.
-\par\medskip
-\textbf{Pending:} Prakhar's web-module commit, final presentation and demonstration video.}
+
+\vspace{0.05cm}
+
+\instruction{
+(Summarize the current status of all key project deliverables
+mentioned earlier. Indicate whether each deliverable is completed,
+in progress, or pending.)
+}
+
+\vspace{0.25cm}
+
+\answerbox{3.20cm}{Completed locally: Python banking service, account-lock manager, SQLite schema, customer/admin interface, Concurrency Lab, Risk Desk, automated tests and recorded demonstration results. In progress: INR calibration and validation of the BankSim local model, larger workload comparisons, report and demo video. Repository work remains: commit the local web/demo changes under the appropriate team accounts and verify the shared README. The optional Groq API review is an interim component for committed transfers; it is not presented as the trained local model.}
+
 \end{document}
