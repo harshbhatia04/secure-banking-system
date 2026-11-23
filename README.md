@@ -1,6 +1,6 @@
 # GEU Banking System — Concurrent Banking Transaction System
 
-University OS + DBMS project with a local banking GUI, concurrency demonstrations, explainable rule-based alerts, and a lightweight AI fraud-risk score. Python 3.10+ and Flask 3.1.2 are required for the web interface.
+University OS + DBMS project with a local banking GUI, concurrency demonstrations, explainable rule-based alerts, and optional AI-assisted transfer review. Python 3.10+ and Flask 3.1.2 are required for the web interface.
 
 ## Show the professor: web interface
 
@@ -32,6 +32,7 @@ Open PowerShell in this project folder:
 .\run.ps1 race-demo
 .\run.ps1 -Tests
 .\run.ps1 -Demo
+python process_safety_demo.py
 ```
 
 The launcher uses `.venv` if present, then the Codex bundled Python on this computer, then `python` from PATH. If script execution is restricted, use an installed Python directly: `python app.py init`. The CLI requires only the standard library, but `-Tests` also runs web tests and therefore needs Flask installed.
@@ -66,7 +67,7 @@ CLI amounts are **rupees**. Python service methods and JSON fields ending in `_p
 
 The web interface includes password-hashed demo logins, customer/admin roles, account ownership checks, CSRF-protected forms, five-attempt login throttling, fraud alerts, and the concurrency lab. A separate logistic-regression prototype was trained from the public **BankSim** simulated bank-payment dataset: 472,365 earlier-day rows for training and 122,278 later-day rows held out for evaluation. Its inputs are amount, earlier payments from the same customer that day, and whether the recipient is new. The fitted parameters and evaluation are stored in `data/banksim_model.json`; run `python ai_fraud.py` to inspect them. This local prototype is not used to score live web transfers because its BankSim scores are not calibrated for INR bank-account activity. Login attacks are handled separately by a failed-login rule; BankSim was **not** used to train a login detector. The CLI is a trusted educational tool and does not authenticate users.
 
-To reproduce training, run `python train_fraud_model.py --download` once. This downloads the 48 MB BankSim CSV to the ignored `data/external/` directory and rebuilds `data/banksim_model.json`; restart the web server afterward. Training requires `scikit-learn`, included in `requirements.txt`, while normal web serving uses only Flask and Python's standard library. See `docs/fraud_model.md` for the source, license, test metrics, and domain limits.
+To reproduce training, run `python train_fraud_model.py --download` once. This downloads the 48 MB BankSim CSV to the ignored `data/external/` directory and rebuilds `data/banksim_model.json`. Training requires `scikit-learn`, included in `requirements.txt`, while normal web serving uses only Flask and Python's standard library. Retraining the prototype does not change the live review path. See `docs/fraud_model.md` for the source, license, test metrics, and domain limits.
 
 For an interim external AI review, run `.\run.ps1 -Web -Groq`. On this Windows account, the launch script loads the Groq key from the ignored, Windows-encrypted `data/.groq_key.dpapi` file. If the file is absent, it prompts for a key without echoing it. The Groq demo starts at `http://127.0.0.1:5001/` so the local site on port 5000 can stay open. Alternatively, set `GROQ_API_KEY` in the server's environment and restart the site. The default hosted model is `openai/gpt-oss-20b` (override with `GROQ_MODEL`). Groq reviews committed transfers and labels any resulting alert `groq_review`. If it is unavailable, the deterministic rules still run and the transfer remains committed; the local BankSim prototype is not a live fallback. Never put the API key in Git or the ZIP. See `docs/fraud_model.md` for the data sent and limitations.
 
@@ -106,6 +107,8 @@ The lock order is always: sorted account locks, then database write transaction.
 
 `python -m unittest discover -s tests -v` runs the automated suite in temporary databases. `python demo.py` runs six presentation scenarios and eight measured workloads, saving `docs/test_results.json` and `docs/test_results.md`. It does not alter the normal banking database.
 
+`python process_safety_demo.py` runs three more isolated checks with separate OS processes: opposing transfers, concurrent replay of one request key, and a process exit after an uncommitted debit. It writes `docs/process_safety_results.json` and never changes `data/banking.db`. These checks complement the unit suite; they do not prove production readiness.
+
 Run the simulator on an otherwise idle database: unrelated transactions during its before/after measurements would affect its accounting check. A fixed seed reproduces requested operations, not thread scheduling. General workloads can legitimately reject operations; accounting includes only successful deposits and withdrawals.
 
-See `docs/architecture.md` for design and ER diagrams, `docs/demo_guide.md` for the presentation, and `docs/plan.md` for milestone status.
+See `docs/architecture.md` for design and ER diagrams, `docs/demo_guide.md` for the presentation, `docs/final_validation.md` for current checks, and `docs/plan.md` for milestone status.

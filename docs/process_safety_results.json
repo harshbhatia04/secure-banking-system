@@ -1,0 +1,123 @@
+{
+  "generated_at_utc": "2026-11-23T05:59:27.894591+00:00",
+  "python_start_method": "spawn",
+  "sqlite_version": "3.53.1",
+  "opposing_transfers_two_processes": {
+    "exit_codes": [
+      0,
+      0
+    ],
+    "outcomes": [
+      {
+        "completed": 25,
+        "replayed": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "completed": 25,
+        "replayed": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      }
+    ],
+    "balances_paise": [
+      1000000,
+      1000000,
+      1000000
+    ],
+    "ledger_rows": 50,
+    "passed": true
+  },
+  "same_key_two_processes": {
+    "exit_codes": [
+      0,
+      0
+    ],
+    "outcomes": [
+      {
+        "completed": 1,
+        "replayed": [
+          false
+        ]
+      },
+      {
+        "completed": 1,
+        "replayed": [
+          true
+        ]
+      }
+    ],
+    "balances_paise": [
+      987655,
+      1012345,
+      1000000
+    ],
+    "ledger_rows": 1,
+    "passed": true
+  },
+  "uncommitted_debit_process_crash": {
+    "exit_code": 7,
+    "balances_before_paise": [
+      1000000,
+      1000000,
+      1000000
+    ],
+    "balances_after_paise": [
+      1000000,
+      1000000,
+      1000000
+    ],
+    "ledger_rows": 0,
+    "passed": true
+  },
+  "overall_passed": true
+}

@@ -1,0 +1,346 @@
+\documentclass[12pt,a4paper]{article}
+
+% ============================================================
+% PACKAGES -- same layout and styling as the supplied template
+% ============================================================
+\usepackage[
+    a4paper,
+    top=1.55cm,
+    bottom=1.35cm,
+    left=1.75cm,
+    right=1.75cm
+]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usepackage{ragged2e}
+
+% ============================================================
+% COLORS
+% ============================================================
+\definecolor{GEUBlue}{RGB}{43,91,145}
+\definecolor{GEUBannerBlue}{RGB}{0,102,148}
+\definecolor{GEUYellow}{RGB}{255,201,38}
+\definecolor{InstructionGrey}{RGB}{125,125,125}
+
+% ============================================================
+% GENERAL SETTINGS
+% ============================================================
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\renewcommand{\arraystretch}{1}
+\setlength{\emergencystretch}{1em}
+
+% ============================================================
+% HEADER / FOOTER
+% ============================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\fontsize{10.5}{12}\selectfont
+    OSDBMS-V-2026-T234 -- SEMESTER 5}
+\fancyhead[R]{\fontsize{10.5}{12}\selectfont
+    PHASE-III PROJECT PROGRESS}
+\fancyfoot[R]{\fontsize{10}{12}\selectfont Page \thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\headheight}{20pt}
+\setlength{\headsep}{0.65cm}
+\setlength{\footskip}{0.65cm}
+
+% ============================================================
+% BOTTOM YELLOW LINE
+% ============================================================
+\AddToShipoutPictureBG{%
+\begin{tikzpicture}[remember picture,overlay]
+    \fill[GEUYellow]
+    (current page.south west) rectangle
+    ([yshift=0.14cm]current page.south east);
+\end{tikzpicture}
+}
+
+% ============================================================
+% CUSTOM COMMANDS
+% Explicit paragraph endings prevent headings from overlapping.
+% ============================================================
+\newcommand{\sectiontitle}[1]{%
+    \par\noindent{\color{GEUBlue}
+    \fontsize{18}{22}\selectfont #1\par}\nobreak
+}
+\newcommand{\instruction}[1]{%
+    \par\noindent{\color{InstructionGrey}
+    \fontsize{10.5}{13}\selectfont #1\par}\nobreak
+}
+\newcommand{\answerbox}[2]{%
+    \par\noindent
+    \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}X|}
+        \hline
+        \parbox[t][#1][t]{\dimexpr\linewidth-12pt\relax}{%
+            \vspace{5pt}
+            \fontsize{11}{13}\selectfont #2\par
+        }\\
+        \hline
+    \end{tabularx}\par
+}
+% Upload these exact image filenames to Overleaf.
+% Missing photos show a placeholder instead of stopping compilation.
+\newcommand{\memberphoto}[1]{%
+    \IfFileExists{#1}
+    {\includegraphics[width=3.0cm,height=1.5cm,keepaspectratio]{#1}}
+    {\fbox{\parbox[c][1.2cm][c]{2.6cm}{\centering\scriptsize Photo}}}
+}
+
+\begin{document}
+
+% ============================================================
+% PAGE 1 -- PROJECT AND TEAM INFORMATION
+% ============================================================
+\vspace*{0.10cm}
+\IfFileExists{geulogo.png}
+{\includegraphics[width=8.0cm]{geulogo.png}}
+{{\color{GEUBlue}\fontsize{22}{26}\selectfont\bfseries GRAPHIC ERA}}
+
+\vspace{0.70cm}
+\noindent\colorbox{GEUBannerBlue}{%
+\parbox{\dimexpr\textwidth-2\fboxsep\relax}{%
+    \vspace{0.17cm}
+    {\color{GEUYellow}\fontsize{16.5}{20}\selectfont
+    \bfseries PROJECT AND TEAM INFORMATION}
+    \vspace{0.17cm}
+}}
+
+\vspace{0.80cm}
+\sectiontitle{Project Title}
+\vspace{0.05cm}
+\instruction{(Try to choose a catchy title. Max 20 words).}
+\vspace{0.40cm}
+\answerbox{1.00cm}{%
+\textbf{Secure Concurrent Banking Transaction System with Fraud Detection}}
+\vspace{0.80cm}
+
+\noindent
+\begin{tabularx}{\textwidth}
+{|>{\RaggedRight\arraybackslash}p{0.69\textwidth}
+ |>{\RaggedRight\arraybackslash}X|}
+\hline
+\begin{minipage}[t]{\linewidth}
+\vspace{1.5mm}
+\textit{Team Name:}\\[-1mm]
+\textit{Team \#}
+\vspace{1.5mm}
+\end{minipage}
+&
+\begin{minipage}[t]{\linewidth}
+\vspace{1.5mm}
+\fontsize{10}{12}\selectfont
+Alpha\\
+OSDBMS-V-2026-T234
+\vspace{1.5mm}
+\end{minipage}\\
+\hline
+\begin{minipage}[t][3.25cm][t]{\linewidth}
+\vspace{1.5mm}
+\textbf{Team member 1 (Team Lead)}\\[-1mm]
+\textit{(Last Name, name: student ID: email, picture):}
+\end{minipage}
+&
+\begin{minipage}[t][3.25cm][t]{\linewidth}
+\vspace{1.5mm}
+\fontsize{10}{12}\selectfont
+Bhatia, Harsh\\
+24021741\\
+24021741@geu.ac.in\\[2mm]
+\memberphoto{HARSH-Photoroom.png}
+\end{minipage}\\
+\hline
+\begin{minipage}[t][3.25cm][t]{\linewidth}
+\vspace{1.5mm}
+\textbf{Team member 2}\\[-1mm]
+\textit{(Last Name, name: student ID: email, picture):}
+\end{minipage}
+&
+\begin{minipage}[t][3.25cm][t]{\linewidth}
+\vspace{1.5mm}
+\fontsize{10}{12}\selectfont
+Kapoor, Tanisha\\
+24022091\\
+24022091@geu.ac.in\\[2mm]
+\memberphoto{Tanisha.jpeg}
+\end{minipage}\\
+\hline
+\begin{minipage}[t][3.25cm][t]{\linewidth}
+\vspace{1.5mm}
+\textbf{Team member 3}\\[-1mm]
+\textit{(Last Name, name: student ID: email, picture):}
+\end{minipage}
+&
+\begin{minipage}[t][3.25cm][t]{\linewidth}
+\vspace{1.5mm}
+\fontsize{10}{12}\selectfont
+Garg, Prakhar\\
+240111564\\
+240111564@geu.ac.in\\[2mm]
+\memberphoto{prakhar.jpeg}
+\end{minipage}\\
+\hline
+\end{tabularx}
+
+\newpage
+% ============================================================
+% PAGE 2 -- ABSTRACT AND APPROACH
+% ============================================================
+\vspace*{0.15cm}
+\noindent\colorbox{GEUBannerBlue}{%
+\parbox{\dimexpr\textwidth-2\fboxsep\relax}{%
+    \vspace{0.18cm}
+    {\color{GEUYellow}\fontsize{17}{21}\selectfont\bfseries
+    PHASE-III PROJECT PROGRESS DESCRIPTION (35 pts)}
+    \vspace{0.18cm}
+}}
+
+\vspace{0.70cm}
+\sectiontitle{Project Abstract (2 pts)}
+\vspace{0.05cm}
+\instruction{(Brief restatement of your project's main goal. Max 300 words).}
+\vspace{0.12cm}
+\answerbox{3.60cm}{%
+Our project shows how a banking application handles simultaneous requests without leaving incorrect balances. Customers use a Flask website to deposit, withdraw and transfer sample money. Account locks coordinate threads, while SQLite transactions keep each payment complete or roll it back. Phase III builds on the working Phase-II prototype with repeated concurrency measurements and verification of the trained BankSim model. The administrator can inspect transaction history, execution traces and risk alerts. Model training and the recorded BankSim test evaluation are complete; validation for live INR transactions remains unfinished.}
+
+\vspace{0.70cm}
+\sectiontitle{Updated Project Approach and Architecture (2 pts)}
+\vspace{0.05cm}
+\instruction{(Describe your current approach, including system design,
+communication protocols, libraries used, etc.\\ Max 300 words).}
+\vspace{0.25cm}
+\answerbox{4.75cm}{%
+Flask serves the browser over local HTTP. Web routes check login, role, account ownership and form tokens before calling the Python transaction service. The service locks account IDs in ascending order and starts \texttt{BEGIN IMMEDIATE} before reading balances. Debit, credit and the successful ledger entry commit together. Failures roll back, with a separate attempt record written afterward. SQLite stores amounts in integer paise and uses WAL mode. Python threads drive the simulator and Concurrency Lab. Rule checks run after payment commit; optional Groq review uses an external HTTPS API. The BankSim logistic-regression model was trained using scikit-learn and remains an offline experiment. Its saved parameters were checked against the original later-day test data. SQLite still permits only one writer at a time.}
+
+\newpage
+% ============================================================
+% PAGE 3 -- TASKS COMPLETED AND CHALLENGES
+% ============================================================
+\vspace*{0.20cm}
+\sectiontitle{Tasks Completed (7 pts)}
+\vspace{0.05cm}
+\instruction{(Describe the main tasks that have been assigned and already
+completed. Max 250 words).}
+\vspace{0.20cm}
+
+{\fontsize{11}{13}\selectfont
+\begin{tabularx}{\textwidth}
+{|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\textbf{Task Completed} & \textbf{Team Member}\\
+\hline
+Completed atomic transactions, rollback and duplicate-request handling.
+Implemented thread coordination, ordered locks and race/deadlock demonstrations.
+Completed BankSim model training and checked its saved test results.
+Ran repeated concurrency workloads.
+& Harsh Bhatia\\[5pt]
+\hline
+Completed the SQLite schema, sample data, constraints, connections and storage
+for transactions, failed attempts and alerts. Maintained database queries and
+design notes, and checked recorded balances and evaluation summaries.
+& Tanisha Kapoor\\[5pt]
+\hline
+Completed customer/admin pages, forms, Risk Desk and transaction receipts.
+Integrated browser views with the backend and web tests. Supported database
+history displays and the OS demonstration by showing thread and lock events
+in the Concurrency Lab.
+& Prakhar Garg\\[5pt]
+\hline
+\end{tabularx}
+}
+
+\vspace{0.65cm}
+\sectiontitle{Challenges/Roadblocks (7 pts)}
+\vspace{0.05cm}
+\instruction{(Describe the challenges that you have faced or are facing so
+far and how you plan to solve them. Max 300 words).}
+\vspace{0.18cm}
+\answerbox{4.05cm}{%
+A good BankSim score does not establish performance on our INR transfers. At the stored threshold, the model missed 640 of 1,320 labelled fraud cases, so further calibration needs suitable labelled examples. More threads also gave uneven timings because account contention and SQLite's single writer limit overlap. We plan longer runs with more accounts and several workload seeds. External review may fail after a payment commits; local rules remain available. Abrupt process failure, power loss and reliable delivery of every review record still need dedicated testing.}
+
+% The supplied template comments out Tasks Pending.
+% It stays omitted; remaining work is stated in the progress sections.
+
+\newpage
+% ============================================================
+% PAGE 4 -- OUTCOMES AND PROGRESS
+% ============================================================
+\vspace*{0.30cm}
+\sectiontitle{Project Outcome/Deliverables (2 pts)}
+\vspace{0.05cm}
+\instruction{(Describe what are the key outcomes / deliverables of the
+project. Max 200 words).}
+\vspace{0.35cm}
+\answerbox{3.35cm}{%
+For the demonstration, a customer can send money between sample accounts and open the resulting receipt. The administrator can then inspect the recorded steps and any alert raised for that payment. A separate lab lets us demonstrate a lost update or an interrupted transfer without changing these customer balances. Alongside the application, the submission includes saved BankSim model parameters, workload results and a seven-page research draft. These files provide evidence to discuss during the presentation. The slides still need a final review, and the demonstration video has not been completed.}
+
+\vspace{0.75cm}
+\sectiontitle{Progress Overview (2 pts)}
+\vspace{0.05cm}
+\instruction{(Summarize how much of the project is done, what's behind
+schedule, what's ahead of schedule. Max 200 words.)}
+\vspace{0.25cm}
+\answerbox{4.45cm}{%
+The Phase-II report left us with two main follow-ups: check the model more carefully and repeat the concurrency measurements. The 2 November test record now covers 45 passing tests. For the workload check, each run began with three fresh accounts; 100 requests were repeated across eight thread/workload combinations, giving 24 runs and 2,400 successful operations. Every run reconciled its closing balance. Checking the saved classifier again gave the recorded BankSim scores, although this reused the same test data. Web and trace files have since been committed locally. The remaining work concerns INR calibration, crash testing and the final presentation material. We have not assigned a completion percentage because these checks are still open.}
+
+\newpage
+% ============================================================
+% PAGE 5 -- CODEBASE, TESTING AND DELIVERABLE STATUS
+% ============================================================
+\vspace*{0.20cm}
+\sectiontitle{Codebase Information (2 pts)}
+\vspace{0.05cm}
+\instruction{(Repository link, branch, and information about important commits.)}
+\vspace{0.20cm}
+\answerbox{3.70cm}{%
+Repository: \texttt{https://github.com/harshbhatia04/secure-banking-system};
+branch: \texttt{main}. Local history includes \texttt{829d40f} for Tanisha's assigned database files, \texttt{099d49d} for the updated Phase-II report and \texttt{4ae1a3f} for the banking web demo, runtime traces and fraud review. The last commit was authored by Harsh; it does not represent an individual Prakhar commit. Main files include \texttt{transaction\_manager.py}, \texttt{concurrency\_manager.py}, \texttt{database.py}, \texttt{schema.sql}, \texttt{web\_app.py} and \texttt{train\_fraud\_model.py}. New research scripts and results in \texttt{docs/research/} still need committing.}
+
+\vspace{0.65cm}
+\sectiontitle{Testing and Validation Status (2 pts)}
+\vspace{0.05cm}
+\instruction{(Provide information about any tests conducted)}
+\vspace{0.30cm}
+
+{\fontsize{10.5}{12.5}\selectfont
+\begin{tabularx}{\textwidth}
+{|>{\raggedright\arraybackslash}p{0.34\textwidth}
+ |>{\raggedright\arraybackslash}p{0.31\textwidth}
+ |>{\raggedright\arraybackslash}X|}
+\hline
+\textbf{Test Type} & \textbf{Status (Pass/Fail)} & \textbf{Notes}\\
+\hline
+Automated banking/web suite & Pass: 45 tests & Recorded on 2 November 2026.\\
+\hline
+Rollback, retries and locking & Pass & Partial debit rolled back; retries moved money once.\\
+\hline
+Repeated threaded workloads & Pass: 24 runs & 2,400 successful operations; balances reconciled.\\
+\hline
+Saved BankSim model evaluation & Completed; metrics reproduced & Precision 83.64\%; recall 51.52\% at 0.5.\\
+\hline
+Live INR model calibration & Pending & Offline results do not validate live scoring.\\
+\hline
+\end{tabularx}
+}
+
+\vspace{0.65cm}
+\sectiontitle{Deliverables Progress (2 pts)}
+\vspace{0.05cm}
+\instruction{(Summarize the current status of all key project deliverables
+mentioned earlier. Indicate whether each deliverable is completed,
+in progress, or pending.)}
+\vspace{0.25cm}
+\answerbox{3.20cm}{%
+\textbf{Completed:} banking service, database, customer/admin interface, Concurrency Lab, rule alerts, optional review integration, model training and recorded offline evaluation.\\[4pt]
+\textbf{In progress:} research-paper review, broader validation and preparation of the final demonstration.\\[4pt]
+\textbf{Pending:} INR calibration, crash/multiprocess tests, research-file commit, final presentation review and video. The trained local model remains outside the live payment path.}
+
+\end{document}

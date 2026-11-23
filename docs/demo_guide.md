@@ -22,6 +22,7 @@ For a live walkthrough:
 6. Run `.\run.ps1 deadlock-demo`. Show both threads holding one lock and timing out on the other. Explain how sorted account IDs remove circular wait in the real transfer service.
 7. Run `.\run.ps1 simulate --workers 20 --operations 100 --mode transfer`. Check `workers_finished`, `accounting_correct`, and `all_operations_accounted_for` are true; total money stays constant.
 8. Show `docs/test_results.md` and `.\run.ps1 -Tests`. Discuss SQLite's single-writer limit, the login/role checks, and rule-based fraud alerts.
+9. Run `python process_safety_demo.py` if asked about separate processes or a crash after debit. Its three checks use temporary databases and do not change live customer balances; show `docs/process_safety_results.json` for the recorded outcomes.
 
 ## Viva questions
 

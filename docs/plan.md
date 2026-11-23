@@ -13,8 +13,8 @@ The project now includes the planned web interface and a local professor demo in
 
 ## Recommended team handoff
 
-- Harsh: explain the schema, atomic transfer and rollback; own backend integration.
-- Prakhar: explain threads, critical sections, deadlock conditions, ordered locking and simulator measurements.
-- Tanisha: explain the GUI, customer/admin journeys, fraud rules and recorded test evidence.
+- Harsh: explain atomic transactions, rollback, ordered account locks, threaded simulation and the AI-review boundary.
+- Tanisha: explain the SQLite schema, constraints, sample accounts, project notes and recorded results.
+- Prakhar: explain the Flask customer/admin interface, transaction forms, Risk Desk, Concurrency Lab and web tests.
 
-All members should run the demo and explain why mixed operations change total money while transfers alone do not.
+All members should run the demo and explain why mixed operations change total money while transfers alone do not. The file responsibilities are presentation assignments; Git commit authorship should reflect the person who actually made each commit.

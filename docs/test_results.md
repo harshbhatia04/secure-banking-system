@@ -1,6 +1,6 @@
 # Recorded demonstration results
 
-Generated: 2026-10-08T14:00:45.634244+00:00
+Generated: 2026-11-23T05:58:18.059303+00:00
 
 Python: 3.12.14; SQLite WAL, BEGIN IMMEDIATE, synchronous FULL
 
@@ -19,14 +19,14 @@ These are measured local results, not promised performance. Each workload uses a
 
 | Workload | Threads | Operations | Successful | Rejected | Seconds | Accounting |
 |---|---:|---:|---:|---:|---:|---|
-| transfer | 1 | 100 | 100 | 0 | 2.0321 | PASS |
-| transfer | 5 | 100 | 100 | 0 | 2.9817 | PASS |
-| transfer | 10 | 100 | 100 | 0 | 1.9656 | PASS |
-| transfer | 20 | 100 | 100 | 0 | 3.7386 | PASS |
-| mixed | 1 | 100 | 100 | 0 | 1.8207 | PASS |
-| mixed | 5 | 100 | 100 | 0 | 2.2646 | PASS |
-| mixed | 10 | 100 | 100 | 0 | 1.5364 | PASS |
-| mixed | 20 | 100 | 100 | 0 | 1.6595 | PASS |
+| transfer | 1 | 100 | 100 | 0 | 1.9984 | PASS |
+| transfer | 5 | 100 | 100 | 0 | 3.3306 | PASS |
+| transfer | 10 | 100 | 100 | 0 | 1.8674 | PASS |
+| transfer | 20 | 100 | 100 | 0 | 3.3332 | PASS |
+| mixed | 1 | 100 | 100 | 0 | 1.8894 | PASS |
+| mixed | 5 | 100 | 100 | 0 | 1.4655 | PASS |
+| mixed | 10 | 100 | 100 | 0 | 2.8039 | PASS |
+| mixed | 20 | 100 | 100 | 0 | 1.467 | PASS |
 
 SQLite allows one writer at a time, so additional threads need not increase throughput.
 The seed fixes the requested operations; thread execution order and timing can vary.

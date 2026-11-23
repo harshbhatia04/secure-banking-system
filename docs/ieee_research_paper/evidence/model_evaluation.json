@@ -1,0 +1,30 @@
+{
+  "training_rows": 472365,
+  "training_fraud": 5880,
+  "test_rows": 122278,
+  "test_fraud": 1320,
+  "test_start_day": 147,
+  "threshold": 0.5,
+  "source_sha256": "ae8a3ec9d0f5bc3bcb5f579b6c32b04c43c53e3ceb5541156a7756c6a1187daa",
+  "average_precision": 0.6926433879440544,
+  "precision": 0.8364083640836408,
+  "recall": 0.5151515151515151,
+  "true_positive": 680,
+  "false_positive": 133,
+  "false_negative": 640,
+  "true_negative": 120825,
+  "verification": {
+    "generated_at_utc": "2026-11-02T13:52:58.556157+00:00",
+    "python": "3.12.14",
+    "rows": 594643,
+    "day_order_decreases": 0,
+    "source_matches_saved_sha256": true,
+    "training_script_sha256": "36364d8f71f7df8bb52e429d8ad00932ea72b526a29a2553b8c21e721f5e28fd",
+    "absolute_metric_differences": {
+      "average_precision": 8.881784197001252e-16,
+      "precision": 0.0,
+      "recall": 0.0
+    },
+    "note": "Saved coefficients re-scored with Python standard library; no model refit. Original model artifact was not overwritten."
+  }
+}
