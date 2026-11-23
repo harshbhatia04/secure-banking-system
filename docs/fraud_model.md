@@ -1,4 +1,14 @@
-# Public-data fraud model
+# Live local transfer model
+
+The web route runs local_review.py after a transfer commits. It uses data/transfer_profile_v1.json, trained locally with train_transfer_profile.py. Training and scoring use the ratio of the payment to the median of up to 20 prior outgoing amounts, the number of earlier outgoing payments that UTC day (capped at 20), and recipient novelty. The model waits for at least three prior payments. It saves its decision in local_reviews and flags cases above its learned review threshold in the Risk Desk. Each record keeps the model version, threshold and decision at payment time. Groq is optional. Historical receipts retain their original evidence.
+
+To reproduce, install requirements.txt, place the credited BankSim CSV in data/external/banksim.csv, and run python train_transfer_profile.py. The trainer processes payments in chronological order, fits on days before 120, selects a threshold on days 120 through 146 and reports performance on days 147 onward. Amount ratios work across currency units. BankSim merchant payments and INR account transfers can still exhibit different behavior.
+
+On the final 122,278 later-day BankSim payments, the live model scored 122,276. Two lacked sufficient history, including one labelled fraud. Of the scored payments, 488 were true alerts, 539 were false alerts, 831 frauds were missed and 120,418 legitimate payments fell below threshold. Precision was 47.5%, recall 37.0%, and average precision 0.407. These are simulator results. An independent labelled INR transfer evaluation is still needed to measure performance for this app's population.
+
+## Earlier offline model
+
+For comparison, the original classifier below used the numerical amount directly. Its BankSim performance was stronger, but substituting rupees for the dataset's amount unit made ordinary demo payments appear extreme.
 
 The separate local prototype is a logistic-regression model trained on [BankSim: Synthetic data from a financial payment system](https://www.kaggle.com/ntnu-testimon/banksim1), created by TESTIMON/NTNU from simulated bank-payment activity. The dataset is published under [CC BY-NC-SA 4.0](https://github.com/prinz-nussknacker/banksim1/blob/master/README.md). This university project uses it for a noncommercial demonstration. The CSV was downloaded from a [public GitHub mirror](https://github.com/niravdedhiya/Fraud-Detection-BankSim/tree/main/data); the original Kaggle page is the dataset source. BankSim has 594,643 labelled transactions, including 7,200 fraud cases. The live website does not use this model to score transfers.
 

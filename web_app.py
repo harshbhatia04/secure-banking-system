@@ -24,6 +24,7 @@ from lab_monitor import LabMonitor
 from security import DEMO_PASSWORD, authenticate, secret_key_for, seed_demo_users
 from transaction_manager import BankingError, TransactionManager
 from transaction_trace import TransactionTrace
+from local_review import scan_local_review
 
 
 def create_app(database_path=None):
@@ -200,7 +201,13 @@ def create_app(database_path=None):
                     trace.record('RISK', 'rules_started', 'Started post-commit fraud rules on the saved ledger row')
                     alerts = scan_transaction(database, result.transaction_id, g.user['id'])
                     trace.record('RISK', 'rules_finished', f'Fraud rules saved {len(alerts)} review alert(s)')
-                    if not result.replayed:
+                    if not result.replayed and operation == 'transfer':
+                        try:
+                            alerts.extend(scan_local_review(database, result.transaction_id, g.user['id']))
+                            trace.record('RISK', 'profile_finished', 'Saved the local transfer profile assessment')
+                        except (ValueError, KeyError, OSError, sqlite3.Error):
+                            app.logger.exception('Local profile review unavailable for %s', result.transaction_id)
+                            trace.record('RISK', 'profile_unavailable', 'Local profile review unavailable')
                         if groq_configured():
                             try:
                                 trace.record('RISK', 'api_started', 'Started configured AI API review')
@@ -280,10 +287,13 @@ def create_app(database_path=None):
         alerts = present_alerts(rows('SELECT rule, reason, reviewed FROM fraud_alerts WHERE transaction_id=? ORDER BY id',
                                      (transaction_id,))) if can_view_alerts else []
         review_context = None
+        local_review = None
         if g.user['role'] == 'admin' and transaction['operation'] == 'transfer':
             connection = database.connect()
             try:
                 review_context = transfer_review_context(connection, transaction)
+                local_review = connection.execute('SELECT status,reason FROM local_reviews WHERE transaction_id=?',
+                                                  (transaction_id,)).fetchone()
             finally:
                 connection.close()
         trace_events = rows('SELECT sequence, occurred_at, elapsed_ms, process_id, native_thread_id, '
@@ -316,7 +326,7 @@ def create_app(database_path=None):
                                show_success_animation=show_success_animation, trace_events=trace_events,
                                acquired_lock_ids=acquired_lock_ids, lock_wait_count=lock_wait_count,
                                writer_wait_ms=writer_wait_ms, review_context=review_context,
-                               review_status=review_status)
+                               review_status=review_status, local_review=local_review)
 
     @app.get('/lab')
     @admin_required

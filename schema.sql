@@ -82,3 +82,13 @@ CREATE TABLE IF NOT EXISTS transaction_events (
     UNIQUE(transaction_id, sequence)
 );
 CREATE INDEX IF NOT EXISTS ix_transaction_events_transaction ON transaction_events(transaction_id, sequence);
+
+CREATE TABLE IF NOT EXISTS local_reviews (
+    transaction_id INTEGER PRIMARY KEY REFERENCES transactions(id),
+    model_version TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('insufficient_history','clear','review')),
+    score REAL,
+    threshold REAL NOT NULL,
+    reason TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_transfer_sender_id ON transactions(source_id,id) WHERE operation='transfer';

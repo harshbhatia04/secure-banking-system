@@ -1,0 +1,42 @@
+{
+  "version": "transfer-profile-v1",
+  "source": "BankSim synthetic payments",
+  "source_sha256": "ae8a3ec9d0f5bc3bcb5f579b6c32b04c43c53e3ceb5541156a7756c6a1187daa",
+  "feature_names": [
+    "log1p_amount_to_recent_median",
+    "earlier_today_capped",
+    "new_recipient"
+  ],
+  "weights": [
+    2.012264062085067,
+    1.3156114241333057,
+    1.1704264903401496
+  ],
+  "bias": -7.04859334388274,
+  "threshold": 0.24439441411701196,
+  "threshold_selection": "Maximum F1 on days 120-146; test starts at day 147",
+  "eligible_rows": {
+    "train": 362590,
+    "validation": 97441,
+    "test": 122276
+  },
+  "all_rows": {
+    "train": 374914,
+    "validation": 97451,
+    "test": 122278
+  },
+  "skipped_fraud": {
+    "train": 615,
+    "validation": 3,
+    "test": 1
+  },
+  "test": {
+    "tn": 120418,
+    "fp": 539,
+    "fn": 831,
+    "tp": 488,
+    "precision": 0.47517039922103216,
+    "recall": 0.36997725549658833,
+    "average_precision": 0.4069443026727772
+  }
+}

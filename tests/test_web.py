@@ -133,6 +133,44 @@ class WebTests(unittest.TestCase):
         self.sign_in('prakhar')
         self.assertNotIn(b'How reviews work', self.client.get('/activity/2').data)
 
+    def test_routine_large_inr_transfer_has_no_local_alert(self):
+        self.sign_in()
+        manager = self.app.config['MANAGER']
+        manager.deposit(1, 5_000_000)
+        for _ in range(3):
+            manager.transfer(1, 2, 1_000_000)
+        conn = self.database.connect()
+        self.addCleanup(conn.close)
+        conn.execute("UPDATE transactions SET created_at='2026-01-01T12:00:00.000Z'")
+        response = self.client.post('/transfer', data=dict(csrf_token=self.token(), operation='transfer',
+                                    source_id=1, destination_id=2, amount='10000'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(conn.execute('SELECT status FROM local_reviews').fetchone()[0], 'clear')
+        self.assertEqual(conn.execute("SELECT count(*) FROM fraud_alerts WHERE rule='high_value'").fetchone()[0], 1)
+
+    def test_sender_profile_reviews_and_replay_without_api(self):
+        from unittest.mock import patch
+        self.sign_in()
+        manager = self.app.config['MANAGER']
+        manager.deposit(1, 9_000_000)
+        token = self.token()
+        def pay(amount, key):
+            return self.client.post('/transfer', data=dict(operation='transfer', source_id=1,
+                                    destination_id=2, amount=amount, csrf_token=token, request_key=key))
+        with patch('web_app.groq_configured', return_value=False):
+            for index in range(3):
+                self.assertEqual(pay('100', str(index)).status_code, 302)
+            self.assertEqual(pay('10000', 'large').status_code, 302)
+            self.assertEqual(pay('10000', 'large').status_code, 302)
+        with self.database.connect() as conn:
+            records = conn.execute('SELECT status FROM local_reviews ORDER BY transaction_id').fetchall()
+            self.assertEqual([r[0] for r in records], ['insufficient_history'] * 3 + ['review'])
+            self.assertEqual(conn.execute("SELECT count(*) FROM fraud_alerts WHERE rule='local_profile'").fetchone()[0], 1)
+        conn.close()
+        self.client.post('/logout', data={'csrf_token': token})
+        self.sign_in('admin')
+        self.assertIn(b'manual review suggested', self.client.get('/activity/5').data)
+
     def test_replayed_request_does_not_show_new_success_animation(self):
         self.sign_in()
         data = {'operation': 'transfer', 'source_id': '1', 'destination_id': '2',
