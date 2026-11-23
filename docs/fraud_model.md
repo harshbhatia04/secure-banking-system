@@ -1,10 +1,18 @@
 # Live local transfer model
 
-The web route runs local_review.py after a transfer commits. It uses data/transfer_profile_v1.json, trained locally with train_transfer_profile.py. Training and scoring use the ratio of the payment to the median of up to 20 prior outgoing amounts, the number of earlier outgoing payments that UTC day (capped at 20), and recipient novelty. The model waits for at least three prior payments. It saves its decision in local_reviews and flags cases above its learned review threshold in the Risk Desk. Each record keeps the model version, threshold and decision at payment time. Groq is optional. Historical receipts retain their original evidence.
+The web route runs [local review](../local_review.py) after a transfer commits. Version 2 uses gradient-boosted decision trees trained on payment history. It considers up to 20 prior outgoing transfers, including their amounts and payments to the same recipient. It also considers earlier activity that UTC day and the median amount of up to 256 recent transfers across all accounts. The influence of this last amount is capped based on the sender's own history. The amount features use ratios, so converting rupees to paise leaves those inputs the same.
 
-To reproduce, install requirements.txt, place the credited BankSim CSV in data/external/banksim.csv, and run python train_transfer_profile.py. The trainer processes payments in chronological order, fits on days before 120, selects a threshold on days 120 through 146 and reports performance on days 147 onward. Amount ratios work across currency units. BankSim merchant payments and INR account transfers can still exhibit different behavior.
+The model needs three prior transfers to score a payment. The Risk Desk shows flagged payments for manual review. SQLite records the model version, threshold, decision and transaction context at payment time. Historical receipts keep their original assessments.
 
-On the final 122,278 later-day BankSim payments, the live model scored 122,276. Two lacked sufficient history, including one labelled fraud. Of the scored payments, 488 were true alerts, 539 were false alerts, 831 frauds were missed and 120,418 legitimate payments fell below threshold. Precision was 47.5%, recall 37.0%, and average precision 0.407. These are simulator results. An independent labelled INR transfer evaluation is still needed to measure performance for this app's population.
+To reproduce, install `requirements.txt`, place the credited BankSim CSV in `data/external/banksim.csv`, and run `python train_transfer_profile.py`. The trainer fits on days before 120 and selects the model and threshold on days 120 through 146. Its selection checks include a routine payment and a large deviation from a sender's baseline. It reports results on days 147 onward, the same later-day benchmark used earlier in the project. It verifies that the exported model produces the same scores as scikit-learn across the full scored test set. The website loads the exported JSON and evaluates the trees with standard Python.
+
+| Model | Scored test payments | Precision | Recall | Average precision |
+| --- | ---: | ---: | ---: | ---: |
+| Original offline logistic regression | 122,278 | 83.6% | 51.5% | 0.693 |
+| Previous live model, version 1 | 122,276 | 47.5% | 37.0% | 0.407 |
+| Live model, version 2 | 122,276 | 75.6% | 60.0% | 0.720 |
+
+Version 2 flagged 792 labelled frauds and 255 legitimate payments. It missed 527 of the scored frauds, while two payments lacked enough history for a score, including one labelled fraud. Precision measures the share of alerts that were labelled fraud. Recall measures the share of scored fraud cases the model caught. These results apply to simulated BankSim payments. Accuracy on real INR transfers still requires independent labelled data.
 
 ## Earlier offline model
 
@@ -30,6 +38,6 @@ The login path is separate. The app records unsuccessful sign-ins, throttles aft
 
 When `GROQ_API_KEY` is set, new transfers use an external Groq-hosted language model for an interim manual-review signal. The default model is `openai/gpt-oss-20b`; `GROQ_MODEL` can override it. The key stays in the environment and is never committed. The app sends only the INR amount, number of earlier outgoing transfers in the last 24 hours, and whether the destination is new. The model returns a structured `low`/`medium`/`high` concern level, a review flag, and a short reason. Flagged transfers create a `groq_review` alert in Risk Desk. This is an LLM-assisted review, not a trained fraud probability or a confirmed fraud decision. It has not been evaluated on a labelled banking holdout.
 
-If Groq is not configured or an API call fails, the committed transfer remains intact and the deterministic high-value, rapid-activity, failure and login rules remain active. A configured API failure is shown to the user. The local BankSim prototype is not used as a fallback.
+Local review and the fixed rules run regardless of Groq availability. A configured API failure is shown to the user after the transfer commits.
 
 To enable the interim review, create a new Groq key, set it as `GROQ_API_KEY` in the server's environment, and restart the web server. Do not paste a key into chat, code, screenshots, or Git. The Groq request uses its [Chat Completions API](https://console.groq.com/docs/api-reference) and [strict structured output](https://console.groq.com/docs/structured-outputs).

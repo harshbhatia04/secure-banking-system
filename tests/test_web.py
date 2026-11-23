@@ -5,6 +5,7 @@ import unittest
 
 from web_app import create_app
 from fraud_detector import transfer_review_context
+from local_review import VERSION
 
 
 class WebTests(unittest.TestCase):
@@ -139,13 +140,16 @@ class WebTests(unittest.TestCase):
         manager.deposit(1, 5_000_000)
         for _ in range(3):
             manager.transfer(1, 2, 1_000_000)
+        for _ in range(15):
+            manager.transfer(2, 3, 10_000)
         conn = self.database.connect()
         self.addCleanup(conn.close)
         conn.execute("UPDATE transactions SET created_at='2026-01-01T12:00:00.000Z'")
         response = self.client.post('/transfer', data=dict(csrf_token=self.token(), operation='transfer',
                                     source_id=1, destination_id=2, amount='10000'))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(conn.execute('SELECT status FROM local_reviews').fetchone()[0], 'clear')
+        result = conn.execute('SELECT status,model_version FROM local_reviews').fetchone()
+        self.assertEqual(tuple(result), ('clear', VERSION))
         self.assertEqual(conn.execute("SELECT count(*) FROM fraud_alerts WHERE rule='high_value'").fetchone()[0], 1)
 
     def test_sender_profile_reviews_and_replay_without_api(self):
