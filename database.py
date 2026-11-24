@@ -88,6 +88,18 @@ class Database:
         finally:
             connection.close()
 
+    def account(self, account_id):
+        """Return one account (id, name, balance_paise, status) or None."""
+        connection = self.connect()
+        try:
+            row = connection.execute(
+                'SELECT a.id, u.name, a.balance_paise, a.status FROM accounts a '
+                'JOIN users u ON a.user_id = u.id WHERE a.id = ?', (account_id,)
+            ).fetchone()
+            return dict(row) if row else None
+        finally:
+            connection.close()
+
     def history(self):
         connection = self.connect()
         try:

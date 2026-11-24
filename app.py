@@ -39,6 +39,8 @@ def build_parser():
             command.add_argument('--fail-after-debit', action='store_true')
         command.add_argument('amount', type=parse_money)
         command.add_argument('--request-key')
+    balance = commands.add_parser('balance')
+    balance.add_argument('account', type=int)
     simulator = commands.add_parser('simulate')
     simulator.add_argument('--workers', type=int, default=10)
     simulator.add_argument('--operations', type=int, default=100)
@@ -66,7 +68,11 @@ def main(argv=None):
                 if not database.path.is_file():
                     raise BankingError('Database does not exist. Run the init command first.')
                 manager = TransactionManager(database)
-                if args.command in ('accounts', 'history', 'failures'):
+                if args.command == 'balance':
+                    result = database.account(args.account)
+                    if result is None:
+                        raise BankingError(f'Account {args.account} does not exist')
+                elif args.command in ('accounts', 'history', 'failures'):
                     result = getattr(database, args.command)()
                 elif args.command == 'simulate':
                     result = run_simulation(manager, args.workers, args.operations, args.seed, args.mode)
