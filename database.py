@@ -139,3 +139,27 @@ class Database:
 
     def total(self):
         return sum(account['balance_paise'] for account in self.accounts())
+
+
+
+    def reconcile(self, opening_paise=1_000_000):
+        """Compare stored balances with opening balance + ledger credits - debits."""
+        connection = self.connect()
+        try:
+            rows = connection.execute('''
+                SELECT a.id, a.balance_paise,
+                  COALESCE((SELECT SUM(amount_paise) FROM transactions WHERE destination_id = a.id), 0) AS credits,
+                  COALESCE((SELECT SUM(amount_paise) FROM transactions WHERE source_id = a.id), 0) AS debits
+                FROM accounts a ORDER BY a.id''').fetchall()
+        finally:
+            connection.close()
+        accounts = []
+        for row in rows:
+            expected = opening_paise + row['credits'] - row['debits']
+            accounts.append({'id': row['id'], 'balance_paise': row['balance_paise'],
+                             'expected_paise': expected,
+                             'difference_paise': row['balance_paise'] - expected,
+                             'ok': row['balance_paise'] == expected})
+        return {'accounts': accounts, 'consistent': all(a['ok'] for a in accounts)}
+
+        

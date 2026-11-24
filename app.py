@@ -29,7 +29,7 @@ def build_parser():
     parser = argparse.ArgumentParser(description='Concurrent banking prototype. CLI amounts are in rupees.')
     parser.add_argument('--db', default='data/banking.db', help='SQLite database path')
     commands = parser.add_subparsers(dest='command', required=True)
-    for name in ('init', 'accounts', 'history', 'failures', 'deadlock-demo', 'race-demo'):
+    for name in ('init', 'accounts', 'history', 'failures', 'reconcile', 'deadlock-demo', 'race-demo'):
         commands.add_parser(name)
     for name in ('deposit', 'withdraw', 'transfer'):
         command = commands.add_parser(name)
@@ -81,7 +81,7 @@ def main(argv=None):
                     result = database.statement(args.account, args.limit)
                 elif args.command in ('freeze', 'unfreeze'):
                     result = database.set_status(args.account, 'frozen' if args.command == 'freeze' else 'active')
-                elif args.command in ('accounts', 'history', 'failures'):
+                elif args.command in ('accounts', 'history', 'failures', 'reconcile'):
                     result = getattr(database, args.command)()
                 elif args.command == 'simulate':
                     result = run_simulation(manager, args.workers, args.operations, args.seed, args.mode)
@@ -94,6 +94,8 @@ def main(argv=None):
             if args.command == 'simulate':
                 exit_code = 0 if (result['accounting_correct'] and result['balances_nonnegative'] and
                                   result['all_operations_accounted_for'] and not result['unexpected_errors']) else 1
+            if args.command == 'reconcile':
+                exit_code = 0 if result['consistent'] else 1
         print(json.dumps(result, indent=2))
         return exit_code
     except (BankingError, ValueError, RuntimeError, sqlite3.Error, OSError) as exc:
