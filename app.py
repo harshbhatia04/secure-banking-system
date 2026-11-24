@@ -41,6 +41,9 @@ def build_parser():
         command.add_argument('--request-key')
     balance = commands.add_parser('balance')
     balance.add_argument('account', type=int)
+    statement = commands.add_parser('statement')
+    statement.add_argument('account', type=int)
+    statement.add_argument('--limit', type=int, default=10)
     simulator = commands.add_parser('simulate')
     simulator.add_argument('--workers', type=int, default=10)
     simulator.add_argument('--operations', type=int, default=100)
@@ -72,6 +75,8 @@ def main(argv=None):
                     result = database.account(args.account)
                     if result is None:
                         raise BankingError(f'Account {args.account} does not exist')
+                elif args.command == 'statement':
+                    result = database.statement(args.account, args.limit)
                 elif args.command in ('accounts', 'history', 'failures'):
                     result = getattr(database, args.command)()
                 elif args.command == 'simulate':

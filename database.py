@@ -100,6 +100,16 @@ class Database:
         finally:
             connection.close()
 
+    def statement(self, account_id, limit=10):
+        """Return the latest committed transactions touching an account."""
+        connection = self.connect()
+        try:
+            return [dict(row) for row in connection.execute(
+                'SELECT * FROM transactions WHERE source_id = ? OR destination_id = ? '
+                'ORDER BY id DESC LIMIT ?', (account_id, account_id, limit))]
+        finally:
+            connection.close()
+
     def history(self):
         connection = self.connect()
         try:
