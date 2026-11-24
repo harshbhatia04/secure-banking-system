@@ -34,8 +34,13 @@ def seed_demo_users(database):
 
 def secret_key_for(database):
     path = database.path.parent / '.secret_key'
-    if not path.exists():
-        path.write_text(secrets.token_hex(32), encoding='ascii')
+    try:
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        pass
+    else:
+        with os.fdopen(fd, 'w', encoding='ascii') as handle:
+            handle.write(secrets.token_hex(32))
     return path.read_text(encoding='ascii').strip()
 
 
