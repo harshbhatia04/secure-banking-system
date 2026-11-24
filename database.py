@@ -110,6 +110,19 @@ class Database:
         finally:
             connection.close()
 
+    def set_status(self, account_id, status):
+        """Freeze or reactivate an account."""
+        if status not in ('active', 'frozen'):
+            raise ValueError('Status must be active or frozen')
+        connection = self.connect()
+        try:
+            cursor = connection.execute('UPDATE accounts SET status = ? WHERE id = ?', (status, account_id))
+            if cursor.rowcount == 0:
+                raise ValueError(f'Account {account_id} does not exist')
+            return {'account': account_id, 'status': status}
+        finally:
+            connection.close()
+
     def history(self):
         connection = self.connect()
         try:

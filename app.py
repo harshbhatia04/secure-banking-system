@@ -41,6 +41,8 @@ def build_parser():
         command.add_argument('--request-key')
     balance = commands.add_parser('balance')
     balance.add_argument('account', type=int)
+    for name in ('freeze', 'unfreeze'):
+        commands.add_parser(name).add_argument('account', type=int)
     statement = commands.add_parser('statement')
     statement.add_argument('account', type=int)
     statement.add_argument('--limit', type=int, default=10)
@@ -77,6 +79,8 @@ def main(argv=None):
                         raise BankingError(f'Account {args.account} does not exist')
                 elif args.command == 'statement':
                     result = database.statement(args.account, args.limit)
+                elif args.command in ('freeze', 'unfreeze'):
+                    result = database.set_status(args.account, 'frozen' if args.command == 'freeze' else 'active')
                 elif args.command in ('accounts', 'history', 'failures'):
                     result = getattr(database, args.command)()
                 elif args.command == 'simulate':
